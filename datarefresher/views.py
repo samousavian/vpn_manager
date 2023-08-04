@@ -1,6 +1,6 @@
 from django.db import IntegrityError
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.conf import settings
 from .models import Inbound, Server
 import sqlite3, json, uuid, os, subprocess
@@ -17,7 +17,7 @@ def db_path(server):
     return destination_file_path
 
 
-def home(request):
+def refresher_db(request):
     servers = Server.objects.all()
     for server in servers:
         try:
@@ -26,7 +26,8 @@ def home(request):
             subprocess.run(command, shell=True, check=True)
         except subprocess.CalledProcessError as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
-    return JsonResponse({'status': 'success'})
+    referer_url = request.META.get('HTTP_REFERER')
+    return HttpResponseRedirect(referer_url) if referer_url else JsonResponse({'status': 'success'})
 
 
 def refresher_state(request):
@@ -39,7 +40,8 @@ def refresher_state(request):
         server_id = server.id
         save_inbounds(df_output, server_id)
         conn.close()
-    return HttpResponse("ok")
+    referer_url = request.META.get('HTTP_REFERER')
+    return HttpResponseRedirect(referer_url) if referer_url else HttpResponse("ok")
 
 def save_inbounds(df_output, server_id):
     server = Server.objects.get(pk=server_id)
