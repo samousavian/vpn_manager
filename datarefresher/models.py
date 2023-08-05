@@ -14,7 +14,6 @@ class Inbound(models.Model):
     up = models.IntegerField(null=True, blank=True, default="")
     down = models.IntegerField(null=True, blank=True, default="")
     id = models.IntegerField(null=True, blank=True, default="")
-    user_id = models.IntegerField(null=True, blank=True, default="")
     listen = models.TextField(null=True, blank=True, default="")
     protocol = models.TextField(null=True, blank=True, default="")
     settings = models.TextField(null=True, blank=True, default="")

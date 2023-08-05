@@ -2,46 +2,47 @@ from django.db import IntegrityError
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.conf import settings
+from concurrent.futures import ThreadPoolExecutor
 from .models import Inbound, Server
-import sqlite3, json, uuid, os, subprocess
+import sqlite3, json, uuid, os, subprocess, requests
 import pandas as pd
 
 
-def db_path(server):
-    # Define the directory path inside the project folder
-    directory_path = os.path.join(settings.BASE_DIR, "data")
-    # Ensure the directory exists
-    os.makedirs(directory_path, exist_ok=True)
-    # Define the destination file path
-    destination_file_path = directory_path + "/" + server.name + ".db"
-    return destination_file_path
-
-
-def refresher_db(request):
+def xui(request):
     servers = Server.objects.all()
     for server in servers:
-        try:
-            destination_file_path = db_path(server)
-            command = f"scp root@{server.ip}:/etc/x-ui/x-ui.db {destination_file_path}"
-            subprocess.run(command, shell=True, check=True)
-        except subprocess.CalledProcessError as e:
-            return JsonResponse({'status': 'error', 'message': str(e)})
-    referer_url = request.META.get('HTTP_REFERER')
-    return HttpResponseRedirect(referer_url) if referer_url else JsonResponse({'status': 'success'})
-
-
-def refresher_state(request):
-    servers = Server.objects.all()
-    for server in servers:
-        destination_file_path = db_path(server)
-        conn = sqlite3.connect(destination_file_path)
-        query = "SELECT * FROM inbounds;"
-        df_output = pd.read_sql_query(query, conn)
         server_id = server.id
-        save_inbounds(df_output, server_id)
-        conn.close()
-    referer_url = request.META.get('HTTP_REFERER')
-    return HttpResponseRedirect(referer_url) if referer_url else HttpResponse("ok")
+        s = requests.Session()
+
+        # Login
+        url = server.url + "login"
+        payload = f'username={server.user_name}&password={server.password}'
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+        response = s.request("POST", url, headers=headers, data=payload)
+
+        # Check if login was successful
+        if response.ok:
+            # Make another request using the same session
+            url = server.url + "xui/inbound/list"
+            headers = {
+                'Accept': 'application/json',
+            }
+            response = s.request("POST", url, headers=headers)
+            # Parsing the JSON string from response.text
+            json_content = json.loads(response.text)
+
+            # Extracting the "obj" key and converting it to a DataFrame
+            obj_data = json_content['obj']
+            df_output = pd.DataFrame(obj_data)
+
+            save_inbounds(df_output, server_id)
+            code = "ok"
+        else:
+            code = "fuck!"
+    return HttpResponse(code)
+
 
 def save_inbounds(df_output, server_id):
     server = Server.objects.get(pk=server_id)
@@ -57,18 +58,17 @@ def save_inbounds(df_output, server_id):
                 defaults={
                     'server': server,
                     'id': row['id'],
-                    'user_id': row['user_id'],
                     'up': row['up'],
                     'down': row['down'],
                     'total': row['total'],
                     'remark': row['remark'],
                     'enable': row['enable'],
-                    'expiry_time': row['expiry_time'],
+                    'expiry_time': row['expiryTime'],
                     'listen': row['listen'],
                     'port': row['port'],
                     'protocol': row['protocol'],
                     'settings': row['settings'],
-                    'stream_settings': row['stream_settings'],
+                    'stream_settings': row['streamSettings'],
                     'tag': row['tag'],
                     'sniffing': row['sniffing'],
                 }
@@ -77,18 +77,17 @@ def save_inbounds(df_output, server_id):
             if not created:
                 # Update the existing record
                 data.id = row['id']
-                data.user_id = row['user_id']
                 data.up = row['up']
                 data.down = row['down']
                 data.total = row['total']
                 data.remark = row['remark']
                 data.enable = row['enable']
-                data.expiry_time = row['expiry_time']
+                data.expiry_time = row['expiryTime']
                 data.listen = row['listen']
                 data.port = row['port']
                 data.protocol = row['protocol']
                 data.settings = row['settings']
-                data.stream_settings = row['stream_settings']
+                data.stream_settings = row['streamSettings']
                 data.tag = row['tag']
                 data.sniffing = row['sniffing']
                 data.save()
