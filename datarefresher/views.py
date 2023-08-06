@@ -4,44 +4,44 @@ from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.conf import settings
 from concurrent.futures import ThreadPoolExecutor
 from .models import Inbound, Server
-import sqlite3, json, uuid, os, subprocess, requests
+import json, uuid, requests
 import pandas as pd
 
 
-def xui(request):
+def login(server):
+    s = requests.Session()
+    url = server.url + "login"
+    payload = f'username={server.user_name}&password={server.password}'
+    headers = {'Content-Type': 'application/x-www-form-urlencoded',}
+    response = s.request("POST", url, headers=headers, data=payload)
+    if response.ok:
+        return s
+    else:
+        return False
+
+
+def inbounds_all(request):
     servers = Server.objects.all()
+    df_all_inbounds = pd.DataFrame()
     for server in servers:
         server_id = server.id
-        s = requests.Session()
-
-        # Login
-        url = server.url + "login"
-        payload = f'username={server.user_name}&password={server.password}'
-        headers = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
-        response = s.request("POST", url, headers=headers, data=payload)
+        s = login(server)
 
         # Check if login was successful
-        if response.ok:
-            # Make another request using the same session
-            url = server.url + "xui/inbound/list"
-            headers = {
-                'Accept': 'application/json',
-            }
-            response = s.request("POST", url, headers=headers)
-            # Parsing the JSON string from response.text
-            json_content = json.loads(response.text)
+        # Make another request using the same session
+        url = server.url + "xui/inbound/list"
+        headers = {'Accept': 'application/json',}
+        response = s.request("POST", url, headers=headers)
 
-            # Extracting the "obj" key and converting it to a DataFrame
-            obj_data = json_content['obj']
-            df_output = pd.DataFrame(obj_data)
+        json_content = json.loads(response.text)
+        obj_data = json_content['obj']
+        df = pd.DataFrame(obj_data)
+        df['server'] = server.name
+        df_all_inbounds = pd.concat([df_all_inbounds, df], ignore_index=True)
+    return df_all_inbounds
 
-            save_inbounds(df_output, server_id)
-            code = "ok"
-        else:
-            code = "fuck!"
-    return HttpResponse(code)
+            # save_inbounds(df_output, server_id)
+    # return HttpResponse(code)
 
 
 def save_inbounds(df_output, server_id):

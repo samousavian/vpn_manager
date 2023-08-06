@@ -2,5 +2,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('inbounds-update/', views.xui, name='inbounds_update'),
+    path('inbounds-all/', views.inbounds_all, name='inbounds_all'),
 ]

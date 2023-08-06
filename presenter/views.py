@@ -1,31 +1,28 @@
 from django.shortcuts import render
 from datarefresher.models import Inbound
 from datetime import datetime
-
+from datarefresher.views import inbounds_all as inbounds_all
 
 def show_disabled_inbounds(request):
-    # Query to filter Inbound objects with enable equal to 0
-    disabled_inbounds = Inbound.objects.filter(enable=0)
-    disabled_inbounds_edited = []
-    
-    # Get current UTC time
     now = datetime.utcnow()
+    df_all_inbounds = inbounds_all(request)
 
-    for inbound in disabled_inbounds:
-        is_over_traffic = inbound.total < inbound.up + inbound.down
-        traffic = (inbound.down + inbound.up) / 1073741824
-        inbound.total = inbound.total / 1073741824
-        inbound.up = inbound.up / 1073741824
-        inbound.down = inbound.down / 1073741824
+    df_all_inbounds['is_over_traffic'] = df_all_inbounds.apply(lambda row: row['total'] < (row['up'] + row['down']), axis=1)
+    df_all_inbounds['traffic'] = df_all_inbounds.apply(lambda row: (row['up'] + row['down']) / 1073741824 , axis=1)
+    df_all_inbounds['total'] = df_all_inbounds.apply(lambda row: row['total'] / 1073741824 , axis=1)
+    df_all_inbounds['up'] = df_all_inbounds.apply(lambda row: row['up'] / 1073741824 , axis=1)
+    df_all_inbounds['down'] = df_all_inbounds.apply(lambda row: row['down'] / 1073741824 , axis=1)
+    df_all_inbounds['expiry_time'] = df_all_inbounds.apply(lambda row: datetime.utcfromtimestamp(row['expiryTime'] / 1000) , axis=1)
+    df_all_inbounds['is_expired'] = df_all_inbounds.apply(lambda row: row['expiry_time'] < now, axis=1)
+    
+    df_disabled_inbounds =  df_all_inbounds[df_all_inbounds['enable'] == False]
+    df_enabled_inbounds =  df_all_inbounds[df_all_inbounds['enable'] == True]
+    
+    all_inbounds = df_all_inbounds.to_dict(orient='records')
+    disabled_inbounds = df_disabled_inbounds.to_dict(orient='records')
+    enabled_inbounds = df_enabled_inbounds.to_dict(orient='records')
 
-        server = inbound.server.name
+    # Pass the filtered objects to a template   
+    context = {'disabled_inbounds': disabled_inbounds, 'enabled_inbounds': enabled_inbounds, 'all_inbounds': all_inbounds, 'now':now}
+    return render(request, 'presenter/all_inbounds.html', context)
 
-        # Convert Unix timestamp to datetime object
-        inbound.expiry_time = datetime.utcfromtimestamp(inbound.expiry_time / 1000)
-        is_expired = inbound.expiry_time < now
-
-        # Append to the list
-        disabled_inbounds_edited.append((inbound, is_expired, is_over_traffic, traffic, server))
-    # Pass the filtered objects to a template
-    context = {'disabled_inbounds': disabled_inbounds_edited, 'now':now}
-    return render(request, 'presenter/disabled_inbounds.html', context)
