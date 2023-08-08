@@ -25,9 +25,15 @@ def inbounds_all():
     df_all_inbounds = pd.DataFrame()
     for server in servers:
         server_id = server.id
-        s = login(server)
-
+        # s = login(server)
+        s = requests.Session()
+        url = server.url + "login"
+        payload = f'username={server.user_name}&password={server.password}'
+        headers = {'Content-Type': 'application/x-www-form-urlencoded',}
+        response = s.request("POST", url, headers=headers, data=payload)
         # Check if login was successful
+        if not response.ok:
+            HttpResponse("login fucked")
         # Make another request using the same session
         url = server.url + "xui/inbound/list"
         headers = {'Accept': 'application/json',}
