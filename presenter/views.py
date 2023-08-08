@@ -5,7 +5,7 @@ from datarefresher.views import inbounds_all as inbounds_all
 
 def show_disabled_inbounds(request):
     now = datetime.utcnow()
-    df_all_inbounds = inbounds_all(request)
+    df_all_inbounds = inbounds_all()
 
     df_all_inbounds['is_over_traffic'] = df_all_inbounds.apply(lambda row: row['total'] < (row['up'] + row['down']), axis=1)
     df_all_inbounds['traffic'] = df_all_inbounds.apply(lambda row: (row['up'] + row['down']) / 1073741824 , axis=1)

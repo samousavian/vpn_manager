@@ -20,7 +20,7 @@ def login(server):
         return False
 
 
-def inbounds_all(request):
+def inbounds_all():
     servers = Server.objects.all()
     df_all_inbounds = pd.DataFrame()
     for server in servers:
