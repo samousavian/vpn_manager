@@ -5,7 +5,7 @@ from django.conf import settings
 from concurrent.futures import ThreadPoolExecutor
 from .models import Inbound, Server
 import json, uuid, requests
-import pandas as pd
+from requests.exceptions import ConnectionError
 
 
 def login(server):
@@ -14,47 +14,15 @@ def login(server):
     payload = f'username={server.user_name}&password={server.password}'
     headers = {'Content-Type': 'application/x-www-form-urlencoded',}
     response = s.request("POST", url, headers=headers, data=payload)
+
     if response.ok:
         return s
     else:
         return False
 
 
-import requests
-from requests.exceptions import ConnectionError
-# ... other imports ...
 
-def inbounds_all():
-    servers = Server.objects.all()
-    df_all_inbounds = pd.DataFrame()
-    for server in servers:
-        server_id = server.id
-        # s = login(server)
-        s = requests.Session()
-        url = server.url + "login"
-        payload = f'username={server.user_name}&password={server.password}'
-        headers = {'Content-Type': 'application/x-www-form-urlencoded',}
-        try:
-            response = s.request("POST", url, headers=headers, data=payload)
-            # Check if login was successful
-            if not response.ok:
-                return HttpResponse("login failed")
 
-            # Make another request using the same session
-            url = server.url + "xui/inbound/list"
-            headers = {'Accept': 'application/json',}
-            response = s.request("POST", url, headers=headers)
-
-            json_content = json.loads(response.text)
-            obj_data = json_content['obj']
-            df = pd.DataFrame(obj_data)
-            df['server'] = server.name
-            df_all_inbounds = pd.concat([df_all_inbounds, df], ignore_index=True)
-        except ConnectionError as ce:
-            return HttpResponse(f"Connection error occurred: {ce}")
-        except Exception as e:
-            return HttpResponse(f"An error occurred: {e}")
-    return df_all_inbounds
 
 
 def save_inbounds(df_output, server_id):

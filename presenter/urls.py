@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import show_disabled_inbounds
+from .views import all_inbounds, add_inbound
 
 urlpatterns = [
-    path('disabled-inbounds/', show_disabled_inbounds, name='show_disabled_inbounds'),
+    path('all_inbounds/', all_inbounds, name='all_inbounds'),
+    path('add_inbound/', add_inbound, name='add_inbound'),
 ]
