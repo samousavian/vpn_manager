@@ -1,11 +1,50 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from datarefresher.models import Inbound
 from datetime import datetime
 from datarefresher.models import Server
+from .models import Purchased
 import pandas as pd
 import json, requests, uuid, random
 from django.shortcuts import get_object_or_404
+from django.contrib.admin.views.decorators import user_passes_test
+from django.contrib.auth import authenticate, login, logout
+
+
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('all_inbounds')
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('all_inbounds')
+        else:
+            error_message = "کاربری با این مشخصات یافت نشد"
+            return render(request, 'login.html', {'error_message': error_message})
+    
+    return render(request, 'login.html')
+
+
+def profile(request, user_id):
+    now = datetime.utcnow()
+    df_all_inbounds = inbounds_all()
+    target_value = user_id
+    filtered_row = df_all_inbounds[df_all_inbounds['settings'].str.contains(target_value)]
+    print(filtered_row.info)
+    final_inbounds = filtered_row.to_dict(orient='records')
+    context = {'final_inbounds': final_inbounds, 'now':now}
+    return render(request, 'presenter/profile.html', context)
+
 
 
 def add_inbound(request):
@@ -91,7 +130,9 @@ def add_inbound(request):
     print(response.text)
     return HttpResponse(response.text)
 
+
 def inbounds_all():
+    now = datetime.utcnow()
     servers = Server.objects.all()
     df_all_inbounds = pd.DataFrame()
     for server in servers:
@@ -114,13 +155,7 @@ def inbounds_all():
         df = pd.DataFrame(obj_data)
         df['server'] = server.name
         df_all_inbounds = pd.concat([df_all_inbounds, df], ignore_index=True)
-    return df_all_inbounds
-
-
-def all_inbounds(request):
-    now = datetime.utcnow()
-    df_all_inbounds = inbounds_all()
-
+    
     df_all_inbounds['is_over_traffic'] = df_all_inbounds.apply(lambda row: row['total'] < (row['up'] + row['down']), axis=1)
     df_all_inbounds['traffic'] = df_all_inbounds.apply(lambda row: (row['up'] + row['down']) / 1073741824 , axis=1)
     df_all_inbounds['total'] = df_all_inbounds.apply(lambda row: row['total'] / 1073741824 , axis=1)
@@ -128,7 +163,39 @@ def all_inbounds(request):
     df_all_inbounds['down'] = df_all_inbounds.apply(lambda row: row['down'] / 1073741824 , axis=1)
     df_all_inbounds['expiry_time'] = df_all_inbounds.apply(lambda row: datetime.utcfromtimestamp(row['expiryTime'] / 1000) , axis=1)
     df_all_inbounds['is_expired'] = df_all_inbounds.apply(lambda row: row['expiry_time'] < now, axis=1)
+ 
+    df_all_inbounds['time_remaining'] = (df_all_inbounds['expiry_time'] - now).dt.days
+    df_all_inbounds['time_remaining'] = df_all_inbounds['time_remaining'].apply(lambda x: max(x, 0))
+
+    return df_all_inbounds
+
+
+def all_inbounds(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
     
+    now = datetime.utcnow()
+    def extract_account_id(settings):
+        try:
+            settings_data = json.loads(settings)
+            clients = settings_data.get("clients", [])
+            if clients:
+                return clients[0]["id"]
+            else:
+                return None
+        except (ValueError, KeyError, IndexError):
+            return None
+
+    df = inbounds_all()
+    if request.user.is_staff:
+        df_all_inbounds = df.copy()
+    else:
+        user_id_list = Purchased.objects.filter(buyer=request.user).values_list('user_id', flat=True)
+        print(user_id_list)
+        df_all_inbounds = df[df['settings'].str.contains('|'.join(user_id_list))]
+    
+    df_all_inbounds["account_id"] = df_all_inbounds["settings"].apply(extract_account_id)
+
     df_disabled_inbounds =  df_all_inbounds[df_all_inbounds['enable'] == False]
     df_enabled_inbounds =  df_all_inbounds[df_all_inbounds['enable'] == True]
         

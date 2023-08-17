@@ -2,63 +2,62 @@
 
 {% block content %}
     <div class="container">
-        <h1 class="mt-4">Disabled Inbounds </h1>
-        <table class="table table-striped mt-3">
+        <h1 class="text-right mt-4">اکانت‌های غیر فعال</h1>
+        <table class="table table-striped table-responsive mt-3">
             <thead>
                 <tr>
-                    <th>Remark</th>
-                    <th>Consumed</th>
-                    <th>Total</th>
-                    <th>up</th>
-                    <th>down</th>
-                    <th>Expiry Time</th>
-                    <th>server</th>
-                    <th>Port</th>
-                    <!-- Add more headers as needed -->
+                </tr>
+                <tr>
+                    <th class="text-right">نام</th>
+                    <th class="text-right">مصرفی (GB)</th>
+                    <th class="text-right">خرید (GB)</th>
+                    <th class="text-right">دانلود (GB)</th>
+                    <th class="text-right">آپلود (GB)</th>
+                    <th class="text-right">انقضا</th>
+                    <th class="text-right">سرور</th>
+                    <th class="text-right">پورت</th>
                 </tr>
             </thead>
             <tbody>
                 {% for inbound in disabled_inbounds %}
                     <tr>
-                        <td>{{ inbound.remark }}</td>
-                        <td class="{{ inbound.is_over_traffic|yesno:'text-danger,text-dark' }}">{{ inbound.traffic|floatformat:2 }} GB</td>
-                        <td>{{ inbound.total|floatformat:2 }} GB</td>
-                        <td>{{ inbound.up|floatformat:2 }} GB</td>
-                        <td>{{ inbound.down|floatformat:2 }} GB</td>
+                        <td><a href="{% url 'profile' inbound.account_id %}">{{ inbound.remark }}</a></td>
+                        <td class="{{ inbound.is_over_traffic|yesno:'text-danger,text-dark' }}">{{ inbound.traffic|floatformat:2 }}</td>
+                        <td class="text-right">{{ inbound.total|floatformat:2 }}</td>
+                        <td class="text-right">{{ inbound.down|floatformat:2 }}</td>
+                        <td class="text-right">{{ inbound.up|floatformat:2 }}</td>
                         <td class="{{ inbound.is_expired|yesno:'text-danger,text-dark' }}">{{ inbound.expiry_time }}</td>
-                        <td>{{ inbound.server }}</td>
-                        <td>{{ inbound.port }}</td>
-                        <!-- Add more columns as needed -->
+                        <td class="text-right">{{ inbound.server }}</td>
+                        <td class="text-right">{{ inbound.port }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <h1 class="mt-4">Enabled Inbounds </h1>
-        <table class="table table-striped mt-3">
+        <h1 class="text-right mt-4">اکانت‌های فعال</h1>
+        <table class="table table-striped table-responsive mt-3">
             <thead>
                 <tr>
-                    <th>Remark</th>
-                    <th>Consumed</th>
-                    <th>Total</th>
-                    <th>up</th>
-                    <th>down</th>
-                    <th>Expiry Time</th>
-                    <th>server</th>
-                    <th>Port</th>
-                    <!-- Add more headers as needed -->
+                    <th class="text-right">نام</th>
+                    <th class="text-right">مصرفی (GB)</th>
+                    <th class="text-right">خرید (GB)</th>
+                    <th class="text-right">دانلود (GB)</th>
+                    <th class="text-right">آپلود (GB)</th>
+                    <th class="text-right">انقضا</th>
+                    <th class="text-right">سرور</th>
+                    <th class="text-right">پورت</th>
                 </tr>
             </thead>
             <tbody>
                 {% for inbound in enabled_inbounds %}
                     <tr>
-                        <td>{{ inbound.remark }}</td>
-                        <td class="{{ inbound.is_over_traffic|yesno:'text-danger,text-dark' }}">{{ inbound.traffic|floatformat:2 }} GB</td>
-                        <td>{{ inbound.total|floatformat:2 }} GB</td>
-                        <td>{{ inbound.up|floatformat:2 }} GB</td>
-                        <td>{{ inbound.down|floatformat:2 }} GB</td>
-                        <td class="{{ inbound.is_expired|yesno:'text-danger,text-dark' }}">{{ inbound.expiry_time }}</td>
-                        <td>{{ inbound.server }}</td>
-                        <td>{{ inbound.port }}</td>
+                        <td><a href="{% url 'profile' inbound.account_id %}">{{ inbound.remark }}</a></td>
+                        <td class="{{ inbound.is_over_traffic|yesno:'text-danger,text-dark' }}">{{ inbound.traffic|floatformat:2 }}</td>
+                        <td class="text-right">{{ inbound.total|floatformat:2 }}</td>
+                        <td class="text-right">{{ inbound.up|floatformat:2 }}</td>
+                        <td class="text-right">{{ inbound.down|floatformat:2 }}</td>
+                        <td class="text-right">{{ inbound.time_remaining }} روز</td>
+                        <td class="text-right">{{ inbound.server }}</td>
+                        <td class="text-right">{{ inbound.port }}</td>
                         <!-- Add more columns as needed -->
                     </tr>
                 {% endfor %}
