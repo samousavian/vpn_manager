@@ -11,42 +11,6 @@ from django.contrib.admin.views.decorators import user_passes_test
 from django.contrib.auth import authenticate, login, logout
 
 
-
-
-def logout_view(request):
-    logout(request)
-    return redirect('login')
-
-
-def login_view(request):
-    if request.user.is_authenticated:
-        return redirect('all_inbounds')
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('all_inbounds')
-        else:
-            error_message = "کاربری با این مشخصات یافت نشد"
-            return render(request, 'login.html', {'error_message': error_message})
-    
-    return render(request, 'login.html')
-
-
-def profile(request, user_id):
-    now = datetime.utcnow()
-    df_all_inbounds = inbounds_all()
-    target_value = user_id
-    filtered_row = df_all_inbounds[df_all_inbounds['settings'].str.contains(target_value)]
-    print(filtered_row.info)
-    final_inbounds = filtered_row.to_dict(orient='records')
-    context = {'final_inbounds': final_inbounds, 'now':now}
-    return render(request, 'presenter/profile.html', context)
-
-
-
 def add_inbound(request):
     server_id = 3
     server = get_object_or_404(Server, name="ir33")
@@ -131,7 +95,18 @@ def add_inbound(request):
     return HttpResponse(response.text)
 
 
-def inbounds_all():
+def profile(request, user_id):
+    now = datetime.utcnow()
+    df_all_inbounds = get_inbounds()
+    target_value = user_id
+    filtered_row = df_all_inbounds[df_all_inbounds['settings'].str.contains(target_value)]
+    print(filtered_row.info)
+    final_inbounds = filtered_row.to_dict(orient='records')
+    context = {'final_inbounds': final_inbounds, 'now':now}
+    return render(request, 'presenter/profile.html', context)
+
+
+def get_inbounds():
     now = datetime.utcnow()
     servers = Server.objects.all()
     df_all_inbounds = pd.DataFrame()
@@ -186,7 +161,7 @@ def all_inbounds(request):
         except (ValueError, KeyError, IndexError):
             return None
 
-    df = inbounds_all()
+    df = get_inbounds()
     if request.user.is_staff:
         df_all_inbounds = df.copy()
     else:
@@ -206,4 +181,26 @@ def all_inbounds(request):
     # Pass the filtered objects to a template   
     context = {'disabled_inbounds': disabled_inbounds, 'enabled_inbounds': enabled_inbounds, 'all_inbounds': all_inbounds, 'now':now}
     return render(request, 'presenter/all_inbounds.html', context)
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('all_inbounds')
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('all_inbounds')
+        else:
+            error_message = "کاربری با این مشخصات یافت نشد"
+            return render(request, 'login.html', {'error_message': error_message})
+    
+    return render(request, 'login.html')
 
