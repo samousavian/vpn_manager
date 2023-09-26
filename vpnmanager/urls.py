@@ -5,4 +5,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('data/', include('datarefresher.urls')),
     path('', include('presenter.urls')),
+    path('', include('modifier.urls')),
 ]

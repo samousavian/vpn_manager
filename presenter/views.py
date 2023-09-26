@@ -12,87 +12,89 @@ from django.contrib.auth import authenticate, login, logout
 
 
 def add_inbound(request):
-    server_id = 3
-    server = get_object_or_404(Server, name="ir33")
+    if request.user.is_staff:
+        server = get_object_or_404(Server, name="ir33")
 
-    s = requests.Session()
-    url = server.url + "login"
-    payload = f'username={server.user_name}&password={server.password}'
-    headers = {'Content-Type': 'application/x-www-form-urlencoded',}
-    response = s.request("POST", url, headers=headers, data=payload)
+        s = requests.Session()
+        url = server.url + "login"
+        payload = f'username={server.user_name}&password={server.password}'
+        headers = {'Content-Type': 'application/x-www-form-urlencoded',}
+        response = s.request("POST", url, headers=headers, data=payload)
 
-    if not response.ok:
-        return HttpResponse(f'login failed{server.name}')
+        if not response.ok:
+            return HttpResponse(f'login failed{server.name}')
 
-    # Make another request using the same session
-    url = server.url + "xui/inbound/add"
+        # Make another request using the same session
+        url = server.url + "xui/inbound/add"
 
-    random_id = str(uuid.uuid4())
-    random_port = random.randint(1024, 65535)
-    user_remark = "test_user2"
-    # url = "https://ir33.yaqoot.top:8080/xui/inbound/add"
+        random_id = str(uuid.uuid4())
+        random_port = random.randint(1024, 65535)
+        user_remark = "test_user2"
+        # url = "https://ir33.yaqoot.top:8080/xui/inbound/add"
 
-    settings = {
-        "clients": [
-            {
-                "id": random_id,
-                "alterId": 0
-            }
-        ],
-        "disableInsecureEncryption": False
-    }
-
-    streamSettings = {
-        "network": "tcp",
-        "security": "tls",
-        "tlsSettings": {
-            "serverName": server.url,
-            "certificates": [
+        settings = {
+            "clients": [
                 {
-                    "certificateFile": "/root/cert.crt",
-                    "keyFile": "/root/private.key"
+                    "id": random_id,
+                    "alterId": 0
                 }
-            ]
-        },
-        "tcpSettings": {
-            "header": {
-                "type": "none"
+            ],
+            "disableInsecureEncryption": False
+        }
+
+        streamSettings = {
+            "network": "tcp",
+            "security": "tls",
+            "tlsSettings": {
+                "serverName": server.url,
+                "certificates": [
+                    {
+                        "certificateFile": "/root/cert.crt",
+                        "keyFile": "/root/private.key"
+                    }
+                ]
+            },
+            "tcpSettings": {
+                "header": {
+                    "type": "none"
+                }
             }
         }
-    }
 
-    sniffing = {
-        "enabled": True,
-        "destOverride": [
-            "http",
-            "tls"
-        ]
-    }
+        sniffing = {
+            "enabled": True,
+            "destOverride": [
+                "http",
+                "tls"
+            ]
+        }
 
-    payload = {
-        "up": 0,
-        "down": 0,
-        "total": 32212254720,
-        "remark": user_remark,
-        "enable": "true",
-        "expiryTime": 1694498646275,
-        "listen": "",
-        "port": random_port,
-        "protocol": "vmess",
-        "settings": json.dumps(settings),
-        "streamSettings": json.dumps(streamSettings),
-        "sniffing": json.dumps(sniffing)
-    }
+        payload = {
+            "up": 0,
+            "down": 0,
+            "total": 32212254720,
+            "remark": user_remark,
+            "enable": "true",
+            "expiryTime": 1694498646275,
+            "listen": "",
+            "port": random_port,
+            "protocol": "vmess",
+            "settings": json.dumps(settings),
+            "streamSettings": json.dumps(streamSettings),
+            "sniffing": json.dumps(sniffing)
+        }
 
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "Mozilla/5.0"
-    }
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "User-Agent": "Mozilla/5.0"
+        }
 
-    response = s.request("POST", url, data=payload, headers=headers)
+        response = s.request("POST", url, data=payload, headers=headers)
 
-    print(response.text)
-    return HttpResponse(response.text)
+        print(response.text)
+        return HttpResponse(response.text)
+    else:
+        return HttpResponse("You Shall Not Pass!!")
 
 
 def profile(request, user_id):
@@ -166,7 +168,6 @@ def all_inbounds(request):
         df_all_inbounds = df.copy()
     else:
         user_id_list = Purchased.objects.filter(buyer=request.user).values_list('user_id', flat=True)
-        print(user_id_list)
         df_all_inbounds = df[df['settings'].str.contains('|'.join(user_id_list))]
     
     df_all_inbounds["account_id"] = df_all_inbounds["settings"].apply(extract_account_id)

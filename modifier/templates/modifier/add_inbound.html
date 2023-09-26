@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Add Inbound</title>
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Add Inbound</h2>
+
+    {% if message %}
+        <div class="alert alert-{{ success|yesno:'success,danger' }}" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.server_name.id_for_label }}">Server Name</label>
+            <select class="form-control" name="{{ form.server_name.name }}" id="{{ form.server_name.id_for_label }}">
+                {% for choice in form.server_name.field.choices %}
+                    <option value="{{ choice }}" {% if form.server_name.value == choice %}selected{% endif %}>{{ choice }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.remark.id_for_label }}">Remark</label>
+            <input type="text" class="form-control" name="{{ form.remark.name }}" id="{{ form.remark.id_for_label }}" maxlength="100" value="{{ form.remark.value|default:'' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.total.id_for_label }}">Total</label>
+            <input type="number" class="form-control" name="{{ form.total.name }}" id="{{ form.total.id_for_label }}" value="{{ form.total.value|default:30 }}">
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.expiry_time.id_for_label }}">Expiry Time</label>
+            <input type="datetime-local" class="form-control" name="{{ form.expiry_time.name }}" id="{{ form.expiry_time.id_for_label }}" value="{{ form.expiry_time.value|date:'Y-m-d\TH:i' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.protocol.id_for_label }}">Protocol</label>
+            <select class="form-control" name="{{ form.protocol.name }}" id="{{ form.protocol.id_for_label }}">
+                {% for choice_value, choice_label in form.protocol.field.choices %}
+                    <option value="{{ choice_value }}" {% if form.protocol.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
