@@ -1,3 +1,10 @@
+# SQLite database
+*.sqlite3
+
+# Settings file
+vpn_manager/vpnmanager/settings.py
+vpnmanager/settings.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
