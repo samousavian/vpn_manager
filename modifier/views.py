@@ -1,18 +1,10 @@
-import base64
-import json
-from operator import attrgetter
-import random
-import string
-import uuid
+import base64, json, random, string, uuid, requests
+from urllib.parse import urlencode, quote_plus, urlparse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-import requests
 from .forms import *
 from presenter.models import *
 from datarefresher.models import *
-from operator import attrgetter
-from urllib.parse import urlencode, quote_plus, urlparse
-from django.contrib import messages
 
 
 def generate_payload(
@@ -155,16 +147,29 @@ def add_inbound(request):
     if request.user.is_staff:
         servers = Server.objects.all()
         server_names = [(name, name) for name in servers.values_list('name', flat=True)]
-        # sorted_servers = sorted(servers, key=attrgetter("user_name"))
-        server_name_choices = []
+
+        server_name_data = []
+
         for server in servers:
             try:
-                server_name_choices.append((server.name, f"{server.name}"))
+                inbounds_count = len(get_inbounds_list(server))
+                label = f"{server.name} ({inbounds_count} inbounds)"
+                server_name_data.append((server.name, label, inbounds_count))
             except ConnectionError:
-                server_name_choices.append((server.name, f"{server.name} (? inbounds)"))
+                label = f"{server.name} (? inbounds)"
+                server_name_data.append((server.name, label, float('inf')))  # Use a high value for sort
                 continue
-    
+
+        # Sort by inbounds_count
+        server_name_data.sort(key=lambda x: x[2])
+
+        # Construct final server_name_choices without inbounds_count
+        server_name_choices = [(item[0], item[1]) for item in server_name_data]
+
         form = AddInboundForm(server_name_choices=server_name_choices)
+
+        # If you want the one with the least inbounds_count to be the default
+        form.fields['server_name'].initial = server_name_data[0][0] if server_name_data else None
 
         if request.method == "POST":
             form = AddInboundForm(request.POST, server_name_choices=server_names)
@@ -254,3 +259,24 @@ def inbound_added(request):
     
     context = {"success": success, "message": message, "link": link, "remark": remark}
     return render(request, "modifier/inbound_added.html", context)
+
+def get_inbounds_list(server):
+    s = requests.Session()
+    url = server.url + "login"
+    payload = f'username={server.user_name}&password={server.password}'
+    headers = {'Content-Type': 'application/x-www-form-urlencoded',}
+    response = s.request("POST", url, headers=headers, data=payload)
+
+    if not response.ok:
+        return HttpResponse(f'login failed{server.name}')
+
+    url = server.url + "xui/inbound/list"
+    headers = {'Accept': 'application/json',}
+    try:
+        response = s.request("POST", url, headers=headers)
+    except Exception:
+        raise ConnectionError
+    if response.status_code == 200 and response.json()["success"]:
+        return response.json()["obj"]
+    else:
+        raise ConnectionError

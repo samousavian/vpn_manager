@@ -140,7 +140,7 @@ def get_inbounds():
     df_all_inbounds['down'] = df_all_inbounds.apply(lambda row: row['down'] / 1073741824 , axis=1)
     df_all_inbounds['expiry_time'] = df_all_inbounds.apply(lambda row: datetime.utcfromtimestamp(row['expiryTime'] / 1000) , axis=1)
     df_all_inbounds['is_expired'] = df_all_inbounds.apply(lambda row: row['expiry_time'] < now, axis=1)
- 
+
     df_all_inbounds['time_remaining'] = (df_all_inbounds['expiry_time'] - now).dt.days
     df_all_inbounds['time_remaining'] = df_all_inbounds['time_remaining'].apply(lambda x: max(x, 0))
 
