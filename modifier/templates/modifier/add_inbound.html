@@ -16,6 +16,17 @@
             {{ message }}
         </div>
     {% endif %}
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <ul>
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <li><strong>{{ field }}:</strong> {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
 
     <form method="post">
         {% csrf_token %}
@@ -23,8 +34,8 @@
         <div class="form-group">
             <label for="{{ form.server_name.id_for_label }}">Server Name</label>
             <select class="form-control" name="{{ form.server_name.name }}" id="{{ form.server_name.id_for_label }}">
-                {% for choice in form.server_name.field.choices %}
-                    <option value="{{ choice }}" {% if form.server_name.value == choice %}selected{% endif %}>{{ choice }}</option>
+                {% for choice_value, choice_label in form.server_name.field.choices %}
+                    <option value="{{ choice_value }}" {% if form.server_name.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
                 {% endfor %}
             </select>
         </div>

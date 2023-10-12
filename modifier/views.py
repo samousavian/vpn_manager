@@ -11,8 +11,7 @@ from .forms import *
 from presenter.models import *
 from datarefresher.models import *
 from operator import attrgetter
-from urllib.parse import urlencode, quote_plus
-
+from urllib.parse import urlencode, quote_plus, urlparse
 
 def generate_payload(
     is_new, remark, total, expiry_time, domain, protocol, port=None, settings=None
@@ -154,11 +153,16 @@ def add_inbound(request):
     if request.user.is_staff:
         servers = Server.objects.all()
         server_names = [(name, name) for name in servers.values_list('name', flat=True)]
-        sorted_servers = sorted(
-            servers, key=attrgetter("user_name")
-        )  # Use a different variable for the sorted list
-        print(server_names)
-        form = AddInboundForm(server_name_choices=server_names)
+        # sorted_servers = sorted(servers, key=attrgetter("user_name"))
+        server_name_choices = []
+        for server in servers:
+            try:
+                server_name_choices.append((server.name, f"{server.name}"))
+            except ConnectionError:
+                server_name_choices.append((server.name, f"{server.name} (? inbounds)"))
+                continue
+    
+        form = AddInboundForm(server_name_choices=server_name_choices)
 
         if request.method == "POST":
             form = AddInboundForm(request.POST, server_name_choices=server_names)
@@ -185,12 +189,12 @@ def add_inbound(request):
                 # url = server.url + "xui/inbound/list"
                 # headers = {'Accept': 'application/json',}
                 # response = s.request("POST", url, headers=headers)
-                domain = server.url
 
-                payload, link = generate_payload(
-                    True, remark, total, expiry_time, domain, protocol
-                )
-
+                url = f"{server.url}xui/inbound/add"
+                domain = urlparse(server.url).hostname
+                payload, link = generate_payload(True, remark, total, expiry_time, domain, protocol)
+                print(payload)
+                print(link)
                 try:
                     response = s.request(
                         "POST", url, headers=headers, data=payload
@@ -206,11 +210,10 @@ def add_inbound(request):
                     context = {
                         "success": False,
                         "message": "Add Inbound Failed",
-                        "servers": sorted_servers,
+                        "servers": server_name_choices,
                         "form": form,
                     }
-                    return render(request, "modifier/add_inbound.html", context)
-
+                return render(request, "modifier/add_inbound.html", context)
             else:
                 return render(
                     request,
@@ -218,7 +221,7 @@ def add_inbound(request):
                     {
                         "success": False,
                         "message": "Invalid Form",
-                        "servers": sorted_servers,
+                        "servers": server_name_choices,
                         "form": form,
                     },
                 )
@@ -226,7 +229,7 @@ def add_inbound(request):
         return render(
             request,
             "modifier/add_inbound.html",
-            {"servers": sorted_servers, "form": form},
+            {"servers": server_name_choices, "form": form},
         )
     else:
         return HttpResponse("You Shall Not Pass!!")
