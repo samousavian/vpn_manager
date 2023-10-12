@@ -43,18 +43,18 @@ import requests
 
 
 def home(request):
-    return render(request, 'home.html')
+    return render(request, "home.html")
 
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect("dashboard")
 
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             login(request, form.get_user())
-            return redirect('dashboard')
+            return redirect("dashboard")
 
     form = AuthenticationForm(request)
     context = {
@@ -63,23 +63,23 @@ def login_view(request):
     return render(request, "login.html", context)
 
 
-@login_required(login_url='login_view')
+@login_required(login_url="login_view")
 def logout_view(request):
     logout(request)
-    return redirect('login_view')
+    return redirect("login_view")
 
 
-@login_required(login_url='login_view')
+@login_required(login_url="login_view")
 def dashboard(request):
-    return render(request, 'status/dashboard.html')
+    return render(request, "status/dashboard.html")
 
 
 def login_to_server(host, username, password):
     url = f"{host}/login"
 
-    payload = f'username={username}&password={password}'
+    payload = f"username={username}&password={password}"
     headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        "Content-Type": "application/x-www-form-urlencoded",
     }
 
     try:
@@ -87,7 +87,7 @@ def login_to_server(host, username, password):
     except Exception:
         raise ConnectionError
 
-    if response.status_code == 200 and response.json()['success']:
+    if response.status_code == 200 and response.json()["success"]:
         return response.headers.get("Set-Cookie")
     else:
         raise ConnectionError
@@ -120,9 +120,7 @@ def get_inbounds_list(server):
     url = f"{server.host}/xui/inbound/list"
 
     payload = {}
-    headers = {
-        'Cookie': set_cookie
-    }
+    headers = {"Cookie": set_cookie}
 
     try:
         response = requests.request("POST", url, headers=headers, data=payload)
@@ -136,9 +134,9 @@ def get_inbounds_list(server):
 
 
 def calc_remaining_traffic(up, down, total):
-    up = up / 2 ** 30
-    down = down / 2 ** 30
-    total = total / 2 ** 30
+    up = up / 2**30
+    down = down / 2**30
+    total = total / 2**30
     return round(total - up - down, 1)
 
 
@@ -148,14 +146,16 @@ def calc_remaining_credit(expiry_time):
     return (expiration - now).days
 
 
-@login_required(login_url='login_view')
+@login_required(login_url="login_view")
 def check_status(request):
     if request.GET.get("start") == "true":
         if request.user.is_staff:
             servers = Server.objects.all()
         else:
-            servers = Server.objects.filter(Q(owner=request.user) | Q(viewer=request.user))
-        servers = sorted(servers, key=attrgetter('username', 'sort_number'))
+            servers = Server.objects.filter(
+                Q(owner=request.user) | Q(viewer=request.user)
+            )
+        servers = sorted(servers, key=attrgetter("username", "sort_number"))
 
         servers_context = []
         for server in servers:
@@ -165,10 +165,12 @@ def check_status(request):
                 disabled_inbounds_json = {}
                 for inbound in inbounds:
                     if not inbound["enable"]:
-                        remark = inbound['remark']
-                        ID = inbound['id']
-                        remaining_credit = calc_remaining_credit(inbound['expiryTime'])
-                        remaining_traffic = calc_remaining_traffic(inbound['up'], inbound['down'], inbound['total'])
+                        remark = inbound["remark"]
+                        ID = inbound["id"]
+                        remaining_credit = calc_remaining_credit(inbound["expiryTime"])
+                        remaining_traffic = calc_remaining_traffic(
+                            inbound["up"], inbound["down"], inbound["total"]
+                        )
 
                         if round(remaining_traffic, 1) > 0:
                             status = f"{remark}({remaining_traffic} GB left)"
@@ -190,42 +192,52 @@ def check_status(request):
                 server.last_disabled_users = json.dumps(disabled_inbounds_json)
                 server.save()
 
-            servers_context.append({
-                'name': server.name,
-                'owner': server.owner,
-                'expired_inbounds': disabled_inbounds,
-                'address': server.host
-            })
+            servers_context.append(
+                {
+                    "name": server.name,
+                    "owner": server.owner,
+                    "expired_inbounds": disabled_inbounds,
+                    "address": server.host,
+                }
+            )
             server.last_disabled_users = str(json.dumps(disabled_inbounds_json))
             server.save()
 
-        context = {"request": request, 'servers_context': servers_context}
+        context = {"request": request, "servers_context": servers_context}
         return render(request, "status/status.html", context)
 
     else:
         return render(request, "status/status.html")
 
 
-def generate_payload(is_new, remark, total, expiry_time, domain, protocol,
-                     port=None, settings=None):
+def generate_payload(
+    is_new, remark, total, expiry_time, domain, protocol, port=None, settings=None
+):
     if is_new:
-        if protocol == 'trojan':
-            UUID = str(''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10)))
+        if protocol == "trojan":
+            UUID = str(
+                "".join(
+                    random.choice(string.ascii_letters + string.digits)
+                    for _ in range(10)
+                )
+            )
         else:
             UUID = str(uuid.uuid4())
         port = random.randint(10000, 60000)
     else:
-        if protocol == 'trojan':
-            UUID = settings['clients'][0]['password']
+        if protocol == "trojan":
+            UUID = settings["clients"][0]["password"]
         else:
-            UUID = settings['clients'][0]['id']
+            UUID = settings["clients"][0]["id"]
 
-    settings, stream_settings, sniffing = generate_config_settings(UUID, protocol, domain)
+    settings, stream_settings, sniffing = generate_config_settings(
+        UUID, protocol, domain
+    )
 
     data = {
         "up": 0,
         "down": 0,
-        "total": total * (2 ** 30),
+        "total": total * (2**30),
         "remark": remark,
         "enable": True,
         "expiryTime": round(expiry_time.timestamp() * 1000 - 3600000 * 3.5),
@@ -233,7 +245,7 @@ def generate_payload(is_new, remark, total, expiry_time, domain, protocol,
         "protocol": protocol,
         "settings": json.dumps(settings),
         "streamSettings": json.dumps(stream_settings),
-        "sniffing": json.dumps(sniffing)
+        "sniffing": json.dumps(sniffing),
     }
 
     link = generate_config_link(domain, port, protocol, remark, settings)
@@ -242,15 +254,10 @@ def generate_payload(is_new, remark, total, expiry_time, domain, protocol,
 
 
 def generate_config_settings(UUID, protocol, server_url):
-    if protocol == 'vmess':
+    if protocol == "vmess":
         settings = {
-            "clients": [
-                {
-                    "id": UUID,
-                    "alterId": 0
-                }
-            ],
-            "disableInsecureEncryption": False
+            "clients": [{"id": UUID, "alterId": 0}],
+            "disableInsecureEncryption": False,
         }
         stream_settings = {
             "network": "tcp",
@@ -260,26 +267,17 @@ def generate_config_settings(UUID, protocol, server_url):
                 "certificates": [
                     {
                         "certificateFile": "/root/cert.crt",
-                        "keyFile": "/root/private.key"
+                        "keyFile": "/root/private.key",
                     }
-                ]
+                ],
             },
-            "tcpSettings": {
-                "header": {
-                    "type": "none"
-                }
-            }
+            "tcpSettings": {"header": {"type": "none"}},
         }
-    elif protocol == 'vless':
+    elif protocol == "vless":
         settings = {
-            "clients": [
-                {
-                    "id": UUID,
-                    "flow": "xtls-rprx-direct"
-                }
-            ],
+            "clients": [{"id": UUID, "flow": "xtls-rprx-direct"}],
             "decryption": "none",
-            "fallbacks": []
+            "fallbacks": [],
         }
         stream_settings = {
             "network": "tcp",
@@ -289,25 +287,16 @@ def generate_config_settings(UUID, protocol, server_url):
                 "certificates": [
                     {
                         "certificateFile": "/root/cert.crt",
-                        "keyFile": "/root/private.key"
+                        "keyFile": "/root/private.key",
                     }
-                ]
+                ],
             },
-            "tcpSettings": {
-                "header": {
-                    "type": "none"
-                }
-            }
+            "tcpSettings": {"header": {"type": "none"}},
         }
     else:
         settings = {
-            "clients": [
-                {
-                    "password": UUID,
-                    "flow": "xtls-rprx-direct"
-                }
-            ],
-            "fallbacks": []
+            "clients": [{"password": UUID, "flow": "xtls-rprx-direct"}],
+            "fallbacks": [],
         }
         stream_settings = {
             "network": "tcp",
@@ -317,54 +306,59 @@ def generate_config_settings(UUID, protocol, server_url):
                 "certificates": [
                     {
                         "certificateFile": "/root/cert.crt",
-                        "keyFile": "/root/private.key"
+                        "keyFile": "/root/private.key",
                     }
-                ]
+                ],
             },
-            "tcpSettings": {
-                "header": {
-                    "type": "none"
-                }
-            }
+            "tcpSettings": {"header": {"type": "none"}},
         }
 
-    sniffing = {
-        "enabled": True,
-        "destOverride": [
-            "http",
-            "tls"
-        ]
-    }
+    sniffing = {"enabled": True, "destOverride": ["http", "tls"]}
     return settings, stream_settings, sniffing
 
 
 def generate_config_link(domain, port, protocol, remark, settings):
-    if protocol == 'vmess':
-        link_data = {"v": "2", "ps": remark, "add": domain, "port": port, "id": settings['clients'][0]['id'],
-                     "aid": 0, "net": "tcp", "type": "none", "host": "", "path": "", "tls": "tls"}
-        link = 'vmess://' + base64.b64encode(json.dumps(link_data).encode()).decode()
-    elif protocol == 'vless':
-        link = f"vless://{settings['clients'][0]['id']}@{domain}:{port}?" \
-               f"type=tcp&security=xtls&flow=xtls-rprx-direct#{quote_plus(remark)}"
+    if protocol == "vmess":
+        link_data = {
+            "v": "2",
+            "ps": remark,
+            "add": domain,
+            "port": port,
+            "id": settings["clients"][0]["id"],
+            "aid": 0,
+            "net": "tcp",
+            "type": "none",
+            "host": "",
+            "path": "",
+            "tls": "tls",
+        }
+        link = "vmess://" + base64.b64encode(json.dumps(link_data).encode()).decode()
+    elif protocol == "vless":
+        link = (
+            f"vless://{settings['clients'][0]['id']}@{domain}:{port}?"
+            f"type=tcp&security=xtls&flow=xtls-rprx-direct#{quote_plus(remark)}"
+        )
     else:
         link = f"trojan://{settings['clients'][0]['password']}@{domain}:{port}#{quote_plus(remark)}"
     return link
 
 
-@login_required(login_url='login_view')
+@login_required(login_url="login_view")
 def add_inbound(request):
     if request.user.is_staff:
         servers = Server.objects.filter(default_x_ui=True)
     else:
         servers = Server.objects.filter(Q(owner=request.user) & Q(default_x_ui=True))
-    servers = sorted(servers, key=attrgetter('username', 'sort_number'))
+    servers = sorted(servers, key=attrgetter("username", "sort_number"))
 
     server_name_choices = []
 
     for server in servers:
         try:
             inbounds_count = len(get_inbounds_list(server))
-            server_name_choices.append((server.name, f"{server.name} ({inbounds_count} inbounds)"))
+            server_name_choices.append(
+                (server.name, f"{server.name} ({inbounds_count} inbounds)")
+            )
         except ConnectionError:
             server_name_choices.append((server.name, f"{server.name} (? inbounds)"))
             continue
@@ -374,90 +368,114 @@ def add_inbound(request):
     if request.method == "POST":
         form = AddInboundForm(request.POST, server_name_choices=server_name_choices)
         if form.is_valid():
-            server_name = form.cleaned_data['server_name']
-            remark = form.cleaned_data['remark']
-            total = form.cleaned_data['total']
-            expiry_time = form.cleaned_data['expiry_time']
-            protocol = form.cleaned_data['protocol']
+            server_name = form.cleaned_data["server_name"]
+            remark = form.cleaned_data["remark"]
+            total = form.cleaned_data["total"]
+            expiry_time = form.cleaned_data["expiry_time"]
+            protocol = form.cleaned_data["protocol"]
 
             server = Server.objects.get(name=server_name)
-            domain = server.host.split(':')[1].replace('/', '')
+            domain = server.host.split(":")[1].replace("/", "")
 
             url = f"{server.host}/xui/inbound/add"
             headers = {
-                'Cookie': server.set_cookie,
-                'Content-Type': 'application/x-www-form-urlencoded'
+                "Cookie": server.set_cookie,
+                "Content-Type": "application/x-www-form-urlencoded",
             }
 
-            payload, link = generate_payload(True, remark, total, expiry_time, domain, protocol)
+            payload, link = generate_payload(
+                True, remark, total, expiry_time, domain, protocol
+            )
 
             try:
                 response = requests.request("POST", url, headers=headers, data=payload)
                 if response.status_code == 200:
                     success = True
                     message = f"{remark} Added Successfully"
-                    context = {'success': success, 'message': message, 'link': link}
-                    return render(request, 'status/add-inbound.html', context)
+                    context = {"success": success, "message": message, "link": link}
+                    return render(request, "status/add-inbound.html", context)
                 else:
                     raise ConnectionError
             except ConnectionError:
-                context = {'success': False, 'message': "Add Inbound Failed", 'servers': servers, 'form': form}
-                return render(request, 'status/add-inbound.html', context)
+                context = {
+                    "success": False,
+                    "message": "Add Inbound Failed",
+                    "servers": servers,
+                    "form": form,
+                }
+                return render(request, "status/add-inbound.html", context)
 
         else:
-            return render(request, 'status/add-inbound.html',
-                          {'success': False, 'message': "Invalid Form", 'servers': servers, 'form': form})
+            return render(
+                request,
+                "status/add-inbound.html",
+                {
+                    "success": False,
+                    "message": "Invalid Form",
+                    "servers": servers,
+                    "form": form,
+                },
+            )
 
-    return render(request, 'status/add-inbound.html',
-                  {'servers': servers, 'form': form})
+    return render(
+        request, "status/add-inbound.html", {"servers": servers, "form": form}
+    )
 
 
 @csrf_exempt
-@login_required(login_url='login_view')
+@login_required(login_url="login_view")
 def renew_inbound(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         server_name = request.POST.get("server")
         inbound_id = request.POST.get("id")
         traffic = int(request.POST.get("traffic"))
-        result = f'Renew inbound: {inbound_id}, from server: {server_name} for {traffic}GB'
+        result = (
+            f"Renew inbound: {inbound_id}, from server: {server_name} for {traffic}GB"
+        )
 
         server = Server.objects.get(name=server_name)
         if server.owner.username != request.user.username:
-            return JsonResponse({'success': False, 'message': 'You are not the owner!'}, status=401)
+            return JsonResponse(
+                {"success": False, "message": "You are not the owner!"}, status=401
+            )
         disabled_inbounds = json.loads(server.last_disabled_users)
         renewing_inbound = disabled_inbounds[inbound_id]
-        domain = server.host.split(':')[1].replace('/', '')
+        domain = server.host.split(":")[1].replace("/", "")
 
-        payload, _ = generate_payload(False, renewing_inbound['remark'], traffic * 2 ** 30,
-                                      datetime.now() + timedelta(days=30),
-                                      domain, renewing_inbound['protocol'],
-                                      renewing_inbound['port'],
-                                      json.loads(renewing_inbound['settings']))
+        payload, _ = generate_payload(
+            False,
+            renewing_inbound["remark"],
+            traffic * 2**30,
+            datetime.now() + timedelta(days=30),
+            domain,
+            renewing_inbound["protocol"],
+            renewing_inbound["port"],
+            json.loads(renewing_inbound["settings"]),
+        )
 
         url = f"{server.host}/xui/inbound/update/{inbound_id}"
         error_flag, set_cookie = get_set_cookie(server)
         if error_flag:
-            return JsonResponse({'success': False, 'message': 'Cant login to server'}, status=401)
+            return JsonResponse(
+                {"success": False, "message": "Cant login to server"}, status=401
+            )
 
-        headers = {
-            "Cookie": set_cookie,
-            "Content-Type": "x-www-form-urlencoded"
-        }
+        headers = {"Cookie": set_cookie, "Content-Type": "x-www-form-urlencoded"}
         print("PAYLOOOOAD: ", payload)
         response = requests.request("POST", url, headers=headers, data=payload)
 
         print(response)
 
-        return JsonResponse({'success': True, 'message': result}, status=200)
-    return JsonResponse({'success': False, 'message': 'Invalid method'}, status=400)
+        return JsonResponse({"success": True, "message": result}, status=200)
+    return JsonResponse({"success": False, "message": "Invalid method"}, status=400)
 
 
 @csrf_exempt
 def delete_inbound(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         server_name = request.POST.get("server")
         inbound_id = request.POST.get("id")
-        result = f'Delete Inbound: {inbound_id}, from server: {server_name}'
+        result = f"Delete Inbound: {inbound_id}, from server: {server_name}"
         print(result)
-        return JsonResponse({'message': result}, status=200)
-    return JsonResponse({'message': 'Invalid method'}, status=400)
+        return JsonResponse({"message": result}, status=200)
+    return JsonResponse({"message": "Invalid method"}, status=400)

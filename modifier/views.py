@@ -12,6 +12,8 @@ from presenter.models import *
 from datarefresher.models import *
 from operator import attrgetter
 from urllib.parse import urlencode, quote_plus, urlparse
+from django.contrib import messages
+
 
 def generate_payload(
     is_new, remark, total, expiry_time, domain, protocol, port=None, settings=None
@@ -185,11 +187,6 @@ def add_inbound(request):
                 if not response.ok:
                     return HttpResponse(f"login failed{server.name}")
 
-                # Make another request using the same session
-                # url = server.url + "xui/inbound/list"
-                # headers = {'Accept': 'application/json',}
-                # response = s.request("POST", url, headers=headers)
-
                 url = f"{server.url}xui/inbound/add"
                 domain = urlparse(server.url).hostname
                 payload, link = generate_payload(True, remark, total, expiry_time, domain, protocol)
@@ -202,8 +199,11 @@ def add_inbound(request):
                     if response.status_code == 200:
                         success = True
                         message = f"{remark} Added Successfully"
-                        context = {"success": success, "message": message, "link": link}
-                        return render(request, "modifier/add_inbound.html", context)
+                        request.session['success'] = success
+                        request.session['message'] = message
+                        request.session['link'] = link
+                        request.session['remark'] = remark
+                        return redirect("inbound_added")
                     else:
                         raise ConnectionError
                 except ConnectionError:
@@ -217,7 +217,7 @@ def add_inbound(request):
             else:
                 return render(
                     request,
-                    "modifier/add_inbound.html",
+                    "modifier/add_inboxund.html",
                     {
                         "success": False,
                         "message": "Invalid Form",
@@ -233,3 +233,24 @@ def add_inbound(request):
         )
     else:
         return HttpResponse("You Shall Not Pass!!")
+
+
+def inbound_added(request):
+    # Fetch data from the session
+    message = request.session.get('message', '')
+    link = request.session.get('link', '')
+    success = request.session.get('success', '')
+    remark = request.session.get('remark', '')
+
+    # Remove the data from the session after fetching
+    if 'message' in request.session:
+        del request.session['message']
+    if 'link' in request.session:
+        del request.session['link']
+    if 'success' in request.session:
+        del request.session['success']
+    if 'remark' in request.session:
+        del request.session['remark']
+    
+    context = {"success": success, "message": message, "link": link, "remark": remark}
+    return render(request, "modifier/inbound_added.html", context)
