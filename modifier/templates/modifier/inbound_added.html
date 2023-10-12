@@ -24,7 +24,6 @@
         <div class="card">
             <h5 class="card-header">{{ remark }}</h5>
             <div class="card-body">
-                <div id="qrcode"></div>
                 <p class="card-text mt-3" id="linkToCopy">{{ link }}</p>
                 <button class="btn btn-primary" onclick="copyLinkToClipboard()">Copy Link</button>
                 <!-- Redirect button -->
@@ -48,16 +47,6 @@
 <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 
 <script>
-    // Generate the QR Code
-    var qrcode = new QRCode(document.getElementById("qrcode"), {
-        text: "{{ link }}",
-        width: 128,
-        height: 128,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-    });
-
     function copyLinkToClipboard() {
         var textArea = document.createElement("textarea");
         textArea.value = document.getElementById('linkToCopy').textContent;
