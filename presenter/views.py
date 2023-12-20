@@ -164,11 +164,15 @@ def all_inbounds(request):
             return None
 
     df = get_inbounds()
-    if request.user.is_staff:
+    user_id_list = Purchased.objects.filter(buyer=request.user).values_list('user_id', flat=True)
+
+    if request.user.is_superuser:
         df_all_inbounds = df.copy()
-    else:
-        user_id_list = Purchased.objects.filter(buyer=request.user).values_list('user_id', flat=True)
+    elif user_id_list:
         df_all_inbounds = df[df['settings'].str.contains('|'.join(user_id_list))]
+    else:
+        return HttpResponse("You Have No Power Here!!")
+        
     
     df_all_inbounds["account_id"] = df_all_inbounds["settings"].apply(extract_account_id)
 
