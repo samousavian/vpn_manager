@@ -2,6 +2,17 @@ from django import forms
 from datetime import datetime, timedelta
 
 
+class UpdateInboundFrom(forms.Form):
+    days = forms.IntegerField(
+        label="Days",
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+    )
+    traffic = forms.IntegerField(
+        label="Traffic",
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+    )
+
+
 class AddInboundForm(forms.Form):
     PROTOCOL_CHOICES = [
         ('vmess', 'vmess-tcp-tls'),
@@ -39,3 +50,4 @@ class AddInboundForm(forms.Form):
         server_name_choices = kwargs.pop('server_name_choices', [])
         super(AddInboundForm, self).__init__(*args, **kwargs)
         self.fields['server_name'].choices = server_name_choices
+        self.fields['expiry_time'].initial = datetime.now() + timedelta(days=31)

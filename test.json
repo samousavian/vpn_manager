@@ -30,3 +30,17 @@
   "tag": "inbound-24762",
   "sniffing": "{\n  \"enabled\": true,\n  \"destOverride\": [\n    \"http\",\n    \"tls\"\n  ]\n}"
 }
+
+{'id': 1, 'up': 2084404387, 'down': 49893824729, 'total': 0, 'remark': 'Samir33', 'enable': True, 'expiryTime': 0, 'listen': '', 'port': 30660, 'protocol': 'vmess', 'se  ttings': '{\n  "clients": [\n    {\n      "id": "b9b64c38-834f-4655-f91f-ae1d361e4dd2",\n      "alterId": 0\n
+      }\n
+    ],\n  "disableInsecureEncryption": false\n
+  }', 'streamSettings': '{\n  "network": "tcp",\n  "security": "tls",\n  "tlsSettings": {\n    "serverName": "ir33.yaqoot.top",\n    "certificates": [\n      {\n        "certificateFile": "/root/cert.crt",\n        "keyFile": "/root/private.key"\n
+        }\n
+      ]\n
+    },\n  "tcpSettings": {\n    "header": {\n      "type": "none"\n
+      }\n
+    }\n
+  }', 'tag': 'inbound-30660', 'sniffing': '{\n  "enabled": true,\n  "destOverride": [\n    "http",\n    "tls"\n
+    ]\n
+  }'
+}

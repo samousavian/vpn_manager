@@ -18,7 +18,7 @@
                     <th class="text-right">آپلود (GB)</th>
                     <th class="text-right">انقضا</th>
                     <th class="text-right">سرور</th>
-                    <th class="text-right">پورت</th>
+                    <th class="text-right">تمدید</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,7 +31,7 @@
                         <td class="text-right">{{ inbound.up|floatformat:2 }}</td>
                         <td class="{{ inbound.is_expired|yesno:'text-danger,text-dark' }}">{{ inbound.expiry_time }}</td>
                         <td class="text-right">{{ inbound.server }}</td>
-                        <td class="text-right">{{ inbound.port }}</td>
+                        <td><a href="{% url 'update_inbound' inbound.account_id inbound.remark inbound.server inbound.total %}">تمدید</a></td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -47,7 +47,7 @@
                     <th class="text-right">آپلود (GB)</th>
                     <th class="text-right">انقضا</th>
                     <th class="text-right">سرور</th>
-                    <th class="text-right">پورت</th>
+                    <th class="text-right">تمدید</th>
                 </tr>
             </thead>
             <tbody>
@@ -60,8 +60,7 @@
                         <td class="text-right">{{ inbound.down|floatformat:2 }}</td>
                         <td class="text-right">{{ inbound.time_remaining }} روز</td>
                         <td class="text-right">{{ inbound.server }}</td>
-                        <td class="text-right">{{ inbound.port }}</td>
-                        <!-- Add more columns as needed -->
+                        <td><a href="{% url 'update_inbound' inbound.account_id inbound.remark inbound.server inbound.total %}">تمدید</a></td>
                     </tr>
                 {% endfor %}
             </tbody>

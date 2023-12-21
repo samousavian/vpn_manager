@@ -5,6 +5,116 @@ from django.shortcuts import redirect, render
 from .forms import *
 from presenter.models import *
 from datarefresher.models import *
+# from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
+
+# @csrf_exempt
+@login_required(login_url="login_view")
+def update_inbound(request, user_id, remark, server_name, pre_traffic):
+    if not request.user.is_staff:
+        return redirect("login")
+
+    server = Server.objects.get(name=server_name)
+    uuid = user_id
+    remark = remark
+    pre_traffic = pre_traffic
+        
+
+    if request.method == "GET":
+        form = UpdateInboundFrom()
+
+        return render(
+            request,
+            "modifier/update_inbound.html",
+            {"pre_traffic": pre_traffic, "remark": remark, "form": form},
+        )
+    
+    elif request.method == "POST":
+        form = UpdateInboundFrom(request.POST)
+        if form.is_valid():
+            traffic = form.cleaned_data["traffic"]
+            days = form.cleaned_data["days"]
+        else:
+            print(form.errors)
+            return HttpResponse("Form is not valid!!")
+
+        if int(traffic) == 0:
+            return HttpResponse("Form is not valid!!")
+
+        inbounds = get_inbounds_list(server)
+        def find_inbound_with_uuid(inbounds, uuid):
+            for inbound in inbounds:
+                settings = json.loads(inbound['settings'])
+                for client in settings['clients']:
+                    if client['id'] == uuid:
+                        return inbound
+        inbound = find_inbound_with_uuid(inbounds, uuid)
+        inbound_id = inbound["id"]
+        domain = urlparse(server.url).hostname
+
+        s = requests.Session()
+        url = server.url + "login"
+        payload = f"username={server.user_name}&password={server.password}"
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+        response = s.request("POST", url, headers=headers, data=payload)
+
+        if not response.ok:
+            return HttpResponse(f"login failed{server.name}")
+        
+        payload, _ = generate_payload(
+            False,
+            inbound["remark"],
+            traffic,
+            datetime.now() + timedelta(days=days),
+            domain,
+            inbound["protocol"],
+            inbound["port"],
+            json.loads(inbound["settings"]),
+        )
+
+        url = f"{server.url}xui/inbound/update/{inbound_id}"
+        domain = urlparse(server.url).hostname
+        try:
+            message = f"{request.user} wants to update {remark} with {traffic}GB in {days} days!"
+            send_to_discord(message)
+        except:
+            return HttpResponse("Code D")
+
+        try:
+            response = s.request(
+                "POST", url, headers=headers, data=payload
+            )
+            if response.status_code == 200:
+                success = True
+                message = f"{remark} updated Successfully"
+                request.session['success'] = success
+                request.session['message'] = message
+                return redirect("inbound_updated")
+            else:
+                raise ConnectionError
+        except ConnectionError:
+            success = False
+            message = f"{remark} update Failed"
+            request.session['success'] = success
+            request.session['message'] = message
+            return redirect("inbound_updated")
+
+def inbound_updated(request):
+    # Fetch data from the session
+    message = request.session.get('message', '')
+    success = request.session.get('success', '')
+
+    # Remove the data from the session after fetching
+    if 'message' in request.session:
+        del request.session['message']
+    if 'success' in request.session:
+        del request.session['success']
+    
+    context = {"success": success, "message": message}
+    return render(request, "modifier/inbound_updated.html", context)
 
 
 def generate_payload(
@@ -195,8 +305,11 @@ def add_inbound(request):
                 url = f"{server.url}xui/inbound/add"
                 domain = urlparse(server.url).hostname
                 payload, link = generate_payload(True, remark, total, expiry_time, domain, protocol)
-                print(payload)
-                print(link)
+                # try:
+                message = f"{request.user} wants to add {remark} with {total}GB in {expiry_time}!"
+                send_to_discord(message)
+                # except:
+                    # return HttpResponse("Code D")
                 try:
                     response = s.request(
                         "POST", url, headers=headers, data=payload
@@ -260,6 +373,7 @@ def inbound_added(request):
     context = {"success": success, "message": message, "link": link, "remark": remark}
     return render(request, "modifier/inbound_added.html", context)
 
+
 def get_inbounds_list(server):
     s = requests.Session()
     url = server.url + "login"
@@ -280,3 +394,13 @@ def get_inbounds_list(server):
         return response.json()["obj"]
     else:
         raise ConnectionError
+
+
+def send_to_discord(message):
+    webhook_url = "https://discord.com/api/webhooks/1187483519438565426/KcUXef_ziRl-VMnHNdHMT2qhHsJ4uuUHvIswigzfm3AVJkAbBrEb6p40IRFTz8IJ52oe"
+    data = {
+        "content": message,
+        "username": "Django App"
+    }
+    response = requests.post(webhook_url, json=data)
+    return response.status_code

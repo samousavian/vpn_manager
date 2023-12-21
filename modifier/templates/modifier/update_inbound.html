@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Update {{ remark }}</title>
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Update {{ remark }}</h2>
+
+    {% if message %}
+        <div class="alert alert-{{ success|yesno:'success,danger' }}" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <ul>
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <li><strong>{{ field }}:</strong> {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.days.id_for_label }}">days</label>
+            <input type="number" class="form-control" name="{{ form.days.name }}" id="{{ form.days.id_for_label }}" value="{{ form.days.value|default:30 }}">
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.traffic.id_for_label }}">traffic</label>
+            <input type="number" class="form-control" name="{{ form.traffic.name }}" id="{{ form.traffic.id_for_label }}" value="{{ form.traffic.value|default:pre_traffic }}">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <a href="{% url 'all_inbounds' %}" class="btn btn-secondary mt-2">All Inbounds</a>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
