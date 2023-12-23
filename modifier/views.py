@@ -7,6 +7,8 @@ from presenter.models import *
 from datarefresher.models import *
 # from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from presenter.models import Purchased
 
 
 # @csrf_exempt
@@ -157,7 +159,7 @@ def generate_payload(
 
     link = generate_config_link(domain, port, protocol, remark, settings)
 
-    return urlencode(data), link
+    return urlencode(data), link, UUID
 
 
 def generate_config_settings(UUID, protocol, server_url):
@@ -250,6 +252,17 @@ def generate_config_link(domain, port, protocol, remark, settings):
     return link
 
 
+
+
+def add_to_purchased(user, remark, uuid):
+    buyer = user
+    purchased = Purchased(user_id=user.username, remark=remark, buyer=buyer)
+    purchased.save()
+
+    return
+
+
+
 def add_inbound(request):
     if not request.user.is_authenticated:
         return redirect("login")
@@ -304,17 +317,18 @@ def add_inbound(request):
 
                 url = f"{server.url}xui/inbound/add"
                 domain = urlparse(server.url).hostname
-                payload, link = generate_payload(True, remark, total, expiry_time, domain, protocol)
-                # try:
-                message = f"{request.user} wants to add {remark} with {total}GB in {expiry_time}!"
-                send_to_discord(message)
-                # except:
-                    # return HttpResponse("Code D")
+                payload, link, uuid = generate_payload(True, remark, total, expiry_time, domain, protocol)
+                try:
+                    message = f"{request.user} wants to add {remark} with {total}GB in {expiry_time}!"
+                    send_to_discord(message)
+                except:
+                    return HttpResponse("Code D")
                 try:
                     response = s.request(
                         "POST", url, headers=headers, data=payload
                     )
                     if response.status_code == 200:
+                        add_to_purchased(request.user, remark,  uuid)
                         success = True
                         message = f"{remark} Added Successfully"
                         request.session['success'] = success
