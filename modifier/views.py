@@ -21,7 +21,6 @@ def update_inbound(request, user_id, remark, server_name, pre_traffic):
     uuid = user_id
     remark = remark
     pre_traffic = pre_traffic
-        
 
     if request.method == "GET":
         form = UpdateInboundFrom()
@@ -31,14 +30,13 @@ def update_inbound(request, user_id, remark, server_name, pre_traffic):
             "modifier/update_inbound.html",
             {"pre_traffic": pre_traffic, "remark": remark, "form": form},
         )
-    
+
     elif request.method == "POST":
         form = UpdateInboundFrom(request.POST)
         if form.is_valid():
             traffic = form.cleaned_data["traffic"]
             days = form.cleaned_data["days"]
         else:
-            print(form.errors)
             return HttpResponse("Form is not valid!!")
 
         if int(traffic) == 0:
@@ -103,6 +101,7 @@ def update_inbound(request, user_id, remark, server_name, pre_traffic):
             request.session['success'] = success
             request.session['message'] = message
             return redirect("inbound_updated")
+
 
 def inbound_updated(request):
     # Fetch data from the session
@@ -252,8 +251,6 @@ def generate_config_link(domain, port, protocol, remark, settings):
     return link
 
 
-
-
 def add_to_purchased(user, remark, uuid):
     buyer = user
     uuid = uuid
@@ -301,7 +298,8 @@ def add_inbound(request):
                 server_name = form.cleaned_data["server_name"]
                 remark = form.cleaned_data["remark"]
                 total = form.cleaned_data["total"]
-                expiry_time = form.cleaned_data["expiry_time"]
+                days = form.cleaned_data["days"]
+                expiry_time = datetime.now() + timedelta(days=days)
                 protocol = form.cleaned_data["protocol"]
 
                 server = Server.objects.get(name=server_name)

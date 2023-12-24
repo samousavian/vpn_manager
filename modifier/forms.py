@@ -34,10 +34,9 @@ class AddInboundForm(forms.Form):
         label="Total",
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
     )
-    expiry_time = forms.DateTimeField(
-        label="Expiry Time",
-        initial=datetime.now() + timedelta(days=31),
-        widget=forms.DateTimeInput(attrs={'class': 'form-control'}),
+    days = forms.IntegerField(
+        label="Days",
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
     )
     protocol = forms.ChoiceField(
         label="Protocol",
@@ -50,4 +49,3 @@ class AddInboundForm(forms.Form):
         server_name_choices = kwargs.pop('server_name_choices', [])
         super(AddInboundForm, self).__init__(*args, **kwargs)
         self.fields['server_name'].choices = server_name_choices
-        self.fields['expiry_time'].initial = datetime.now() + timedelta(days=31)
