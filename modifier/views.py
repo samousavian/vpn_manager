@@ -256,7 +256,8 @@ def generate_config_link(domain, port, protocol, remark, settings):
 
 def add_to_purchased(user, remark, uuid):
     buyer = user
-    purchased = Purchased(user_id=user.username, remark=remark, buyer=buyer)
+    uuid = uuid
+    purchased = Purchased(user_id=uuid, remark=remark, buyer=buyer)
     purchased.save()
 
     return
