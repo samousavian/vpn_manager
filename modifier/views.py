@@ -64,7 +64,7 @@ def update_inbound(request, user_id, remark, server_name, pre_traffic):
         if not response.ok:
             return HttpResponse(f"login failed{server.name}")
         
-        payload, _ = generate_payload(
+        payload, _, _ = generate_payload(
             False,
             inbound["remark"],
             traffic,
