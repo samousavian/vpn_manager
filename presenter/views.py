@@ -175,11 +175,11 @@ def all_inbounds(request):
         
     
     df_all_inbounds["account_id"] = df_all_inbounds["settings"].apply(extract_account_id)
+    sorted_df = df_all_inbounds.sort_values(by='remark')
 
-    df_disabled_inbounds =  df_all_inbounds[df_all_inbounds['enable'] == False]
-    df_enabled_inbounds =  df_all_inbounds[df_all_inbounds['enable'] == True]
-        
-    all_inbounds = df_all_inbounds.to_dict(orient='records')
+    df_disabled_inbounds =  sorted_df[df_all_inbounds['enable'] == False]
+    df_enabled_inbounds =  sorted_df[df_all_inbounds['enable'] == True]
+    all_inbounds = sorted_df.to_dict(orient='records')
     disabled_inbounds = df_disabled_inbounds.to_dict(orient='records')
     enabled_inbounds = df_enabled_inbounds.to_dict(orient='records')
 

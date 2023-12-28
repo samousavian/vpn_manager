@@ -33,11 +33,11 @@
 
         <div class="form-group">
             <label for="{{ form.days.id_for_label }}">days</label>
-            <input type="number" class="form-control" name="{{ form.days.name }}" id="{{ form.days.id_for_label }}" value="{{ form.days.value|default:30 }}">
+            <input type="number" class="form-control" name="{{ form.days.name }}" id="{{ form.days.id_for_label }}" value="{{ form.days.value|default:31 }}">
         </div>
 
         <div class="form-group">
-            <label for="{{ form.traffic.id_for_label }}">traffic</label>
+            <label for="{{ form.traffic.id_for_label }}">Total Traffic</label>
             <input type="number" class="form-control" name="{{ form.traffic.name }}" id="{{ form.traffic.id_for_label }}" value="{{ form.traffic.value|default:pre_traffic }}">
         </div>
 
