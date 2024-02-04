@@ -1,46 +1,138 @@
 {
-  "id": 27,
-  "up": 1920861464,
-  "down": 5026068744,
-  "total": 64424509440,
-  "remark": "Mahmood Danafar",
-  "enable": false,
-  "expiryTime": 1691694960532,
-  "listen": "",
-  "port": 45830,
-  "protocol": "vmess",
-  "settings": "{\n  \"clients\": [\n    {\n      \"id\": \"74b1712f-8e9b-45ae-d128-52db9383f4dd\",\n      \"alterId\": 0\n    }\n  ],\n  \"disableInsecureEncryption\": false\n}",
-  "streamSettings": "{\n  \"network\": \"tcp\",\n  \"security\": \"tls\",\n  \"tlsSettings\": {\n    \"serverName\": \"ir33.yaqoot.top\",\n    \"certificates\": [\n      {\n        \"certificateFile\": \"/root/cert.crt\",\n        \"keyFile\": \"/root/private.key\"\n      }\n    ]\n  },\n  \"tcpSettings\": {\n    \"header\": {\n      \"type\": \"none\"\n    }\n  }\n}",
-  "tag": "inbound-45830",
-  "sniffing": "{\n  \"enabled\": true,\n  \"destOverride\": [\n    \"http\",\n    \"tls\"\n  ]\n}"
-},
-{
-  "id": 28,
-  "up": 0,
-  "down": 0,
-  "total": 32212254720,
-  "remark": "test_user2",
-  "enable": true,
-  "expiryTime": 1694498646275,
-  "listen": "",
-  "port": 24762,
-  "protocol": "vmess",
-  "settings": "{\n  \"clients\": [\n    {\n      \"id\": \"78a5bbf0-9d32-4f30-b500-ccb16806fc96\",\n      \"alterId\": 0\n    }\n  ],\n  \"disableInsecureEncryption\": false\n}",
-  "streamSettings": "{\n  \"network\": \"tcp\",\n  \"security\": \"tls\",\n  \"tlsSettings\": {\n    \"serverName\": \"ir33.yaqoot.top\",\n    \"certificates\": [\n      {\n        \"certificateFile\": \"/root/cert.crt\",\n        \"keyFile\": \"/root/private.key\"\n      }\n    ]\n  },\n  \"tcpSettings\": {\n    \"header\": {\n      \"type\": \"none\"\n    }\n  }\n}",
-  "tag": "inbound-24762",
-  "sniffing": "{\n  \"enabled\": true,\n  \"destOverride\": [\n    \"http\",\n    \"tls\"\n  ]\n}"
-}
-
-{'id': 1, 'up': 2084404387, 'down': 49893824729, 'total': 0, 'remark': 'Samir33', 'enable': True, 'expiryTime': 0, 'listen': '', 'port': 30660, 'protocol': 'vmess', 'se  ttings': '{\n  "clients": [\n    {\n      "id": "b9b64c38-834f-4655-f91f-ae1d361e4dd2",\n      "alterId": 0\n
-      }\n
-    ],\n  "disableInsecureEncryption": false\n
-  }', 'streamSettings': '{\n  "network": "tcp",\n  "security": "tls",\n  "tlsSettings": {\n    "serverName": "ir33.yaqoot.top",\n    "certificates": [\n      {\n        "certificateFile": "/root/cert.crt",\n        "keyFile": "/root/private.key"\n
-        }\n
-      ]\n
-    },\n  "tcpSettings": {\n    "header": {\n      "type": "none"\n
-      }\n
-    }\n
-  }', 'tag': 'inbound-30660', 'sniffing': '{\n  "enabled": true,\n  "destOverride": [\n    "http",\n    "tls"\n
-    ]\n
-  }'
+  "dns": {
+    "disableFallback": true,
+    "servers": [
+      {
+        "address": "https://8.8.8.8/dns-query",
+        "domains": [],
+        "queryStrategy": ""
+      },
+      {
+        "address": "localhost",
+        "domains": [
+          "full:het4.yashm.shop"
+        ],
+        "queryStrategy": ""
+      }
+    ],
+    "tag": "dns"
+  },
+  "inbounds": [
+    {
+      "listen": "127.0.0.1",
+      "port": 2080,
+      "protocol": "socks",
+      "settings": {
+        "udp": true
+      },
+      "sniffing": {
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ],
+        "enabled": true,
+        "metadataOnly": false,
+        "routeOnly": true
+      },
+      "tag": "socks-in"
+    }
+  ],
+  "log": {
+    "loglevel": "warning"
+  },
+  "outbounds": [
+    {
+      "domainStrategy": "AsIs",
+      "flow": null,
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "het4.yashm.shop",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "",
+                "id": "4468a414-5e11-4837-9694-62538fa13926"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "het4.yashm.shop"
+        },
+        "wsSettings": {
+          "headers": {
+            "Host": "het4.yashm.shop"
+          },
+          "path": "/xgvjws"
+        }
+      }
+    },
+    {
+      "domainStrategy": "",
+      "protocol": "freedom",
+      "tag": "direct"
+    },
+    {
+      "domainStrategy": "",
+      "protocol": "freedom",
+      "tag": "bypass"
+    },
+    {
+      "protocol": "blackhole",
+      "tag": "block"
+    },
+    {
+      "protocol": "dns",
+      "proxySettings": {
+        "tag": "proxy",
+        "transportLayer": true
+      },
+      "settings": {
+        "address": "8.8.8.8",
+        "network": "tcp",
+        "port": 53,
+        "userLevel": 1
+      },
+      "tag": "dns-out"
+    }
+  ],
+  "policy": {
+    "levels": {
+      "1": {
+        "connIdle": 30
+      }
+    },
+    "system": {
+      "statsOutboundDownlink": true,
+      "statsOutboundUplink": true
+    }
+  },
+  "routing": {
+    "domainStrategy": "AsIs",
+    "rules": [
+      {
+        "inboundTag": [
+          "socks-in",
+          "http-in"
+        ],
+        "outboundTag": "dns-out",
+        "port": "53",
+        "type": "field"
+      },
+      {
+        "outboundTag": "proxy",
+        "port": "0-65535",
+        "type": "field"
+      }
+    ]
+  },
+  "stats": {}
 }

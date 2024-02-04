@@ -1,0 +1,93 @@
+{
+    "api": {
+        "services": [
+            "HandlerService",
+            "LoggerService",
+            "StatsService"
+        ],
+        "tag": "api"
+    },
+    "inbounds": [
+        {
+            "listen": "127.0.0.1",
+            "port": 62789,
+            "protocol": "dokodemo-door",
+            "settings": {
+                "address": "127.0.0.1"
+            },
+            "tag": "api"
+        }
+    ],
+    "outbounds": [
+        {
+            "domainStrategy": "AsIs",
+            "flow": null,
+            "protocol": "vless",
+            "settings": {
+                "vnext": [
+                    {
+                        "address": "het4.yashm.shop",
+                        "port": 443,
+                        "users": [
+                            {
+                                "encryption": "none",
+                                "flow": "",
+                                "id": "4468a414-5e11-4837-9694-62538fa13926"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "streamSettings": {
+                "network": "ws",
+                "security": "tls",
+                "tlsSettings": {
+                    "serverName": "het4.yashm.shop"
+                },
+                "wsSettings": {
+                    "headers": {
+                        "Host": "het4.yashm.shop"
+                    },
+                    "path": "/xgvjws"
+                }
+            }
+        },
+        {
+            "protocol": "blackhole",
+            "settings": {},
+            "tag": "blocked"
+        }
+    ],
+    "policy": {
+        "system": {
+            "statsInboundDownlink": true,
+            "statsInboundUplink": true
+        }
+    },
+    "routing": {
+        "rules": [
+            {
+                "inboundTag": [
+                    "api"
+                ],
+                "outboundTag": "api",
+                "type": "field"
+            },
+            {
+                "ip": [
+                    "geoip:private"
+                ],
+                "outboundTag": "blocked",
+                "type": "field"
+            },
+            {
+                "outboundTag": "blocked",
+                "protocol": [
+                    "bittorrent"
+                ],
+                "type": "field"
+            }
+        ]
+    },
+    "stats": {}
+}

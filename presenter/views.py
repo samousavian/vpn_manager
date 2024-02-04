@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+import numpy as np
 from datarefresher.models import Inbound
 from datetime import datetime
 from datarefresher.models import Server
@@ -175,7 +176,13 @@ def all_inbounds(request):
         
     
     df_all_inbounds["account_id"] = df_all_inbounds["settings"].apply(extract_account_id)
+    df_all_inbounds['formatted_expiry_time'] = df_all_inbounds['expiry_time'].dt.strftime('%Y%m%d%H%M')
+    df_all_inbounds['int_traffic'] = np.ceil(df_all_inbounds['traffic']).astype(int)
+    df_all_inbounds['int_total'] = np.ceil(df_all_inbounds['total']).astype(int)
+
     sorted_df = df_all_inbounds.sort_values(by='remark')
+    print(sorted_df.columns)
+    print(sorted_df.sample())
 
     df_disabled_inbounds =  sorted_df[df_all_inbounds['enable'] == False]
     df_enabled_inbounds =  sorted_df[df_all_inbounds['enable'] == True]

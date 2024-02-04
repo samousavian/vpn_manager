@@ -9,11 +9,12 @@ from datarefresher.models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from presenter.models import Purchased
+from .models import Updated_Inbound
 
 
 # @csrf_exempt
 @login_required(login_url="login_view")
-def update_inbound(request, user_id, remark, server_name, pre_traffic):
+def update_inbound(request, user_id, remark, server_name, pre_traffic, expiry_time, total_used):
     if not request.user.is_staff:
         return redirect("login")
 
@@ -92,6 +93,17 @@ def update_inbound(request, user_id, remark, server_name, pre_traffic):
                 message = f"{remark} updated Successfully"
                 request.session['success'] = success
                 request.session['message'] = message
+
+                # Create and save a new Updated_Inbound instance
+                new_record = Updated_Inbound(
+                    remark=remark,
+                    uuid=uuid,
+                    total_used=total_used,
+                    expiry_time=datetime.strptime(expiry_time, '%Y%m%d%H%M'),
+                    buyer=request.user
+                )
+                new_record.save()
+
                 return redirect("inbound_updated")
             else:
                 raise ConnectionError
