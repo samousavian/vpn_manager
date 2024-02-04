@@ -12,6 +12,10 @@ from django.contrib.admin.views.decorators import user_passes_test
 from django.contrib.auth import authenticate, login, logout
 
 
+class ServerLoginError(Exception):
+    pass
+
+
 def add_inbound(request):
     if request.user.is_staff:
         server = get_object_or_404(Server, name="ir33")
@@ -114,15 +118,21 @@ def get_inbounds():
     servers = Server.objects.all()
     df_all_inbounds = pd.DataFrame()
     for server in servers:
-        s = requests.Session()
-        url = server.url + "login"
-        payload = f'username={server.user_name}&password={server.password}'
-        headers = {'Content-Type': 'application/x-www-form-urlencoded',}
-        response = s.request("POST", url, headers=headers, data=payload)
+        try:
+            s = requests.Session()
+            url = server.url + "login"
+            payload = f'username={server.user_name}&password={server.password}'
+            headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+            response = s.request("POST", url, headers=headers, data=payload)
 
-        if not response.ok:
-            return HttpResponse(f'login failed{server.name}')
-
+            # Handle non-200 responses or check response content as needed
+            if response.status_code != "200":  # or other success codes as appropriate
+                    error_message = f"Login failed for server: {server.name}. Status code: {response.status_code}"
+                    raise ServerLoginError(error_message)
+        except requests.exceptions.RequestException as e:
+            error_message = f"An error occurred with server: {server.name}. Error details: {e}"
+            raise ServerLoginError(error_message)
+        
         # Make another request using the same session
         url = server.url + "xui/inbound/list"
         headers = {'Accept': 'application/json',}
@@ -163,8 +173,11 @@ def all_inbounds(request):
                 return None
         except (ValueError, KeyError, IndexError):
             return None
-
-    df = get_inbounds()
+    try:
+        df = get_inbounds()
+    except ServerLoginError as e:
+        return HttpResponse(str(e), status=400)  # Use appropriate HTTP status code
+    
     user_id_list = Purchased.objects.filter(buyer=request.user).values_list('user_id', flat=True)
 
     if request.user.is_superuser:
@@ -179,6 +192,19 @@ def all_inbounds(request):
     df_all_inbounds['formatted_expiry_time'] = df_all_inbounds['expiry_time'].dt.strftime('%Y%m%d%H%M')
     df_all_inbounds['int_traffic'] = np.ceil(df_all_inbounds['traffic']).astype(int)
     df_all_inbounds['int_total'] = np.ceil(df_all_inbounds['total']).astype(int)
+
+    # Query the Purchased model and select related User models to access the username
+    purchased_qs = Purchased.objects.select_related('buyer').values('user_id', 'buyer__username')
+
+    # Convert the QuerySet to a DataFrame
+    purchased_df = pd.DataFrame(purchased_qs)
+
+    # Rename columns for clarity and merging
+    purchased_df.rename(columns={'user_id': 'account_id', 'buyer__username': 'buyer_username'}, inplace=True)
+
+    # Merge the DataFrames on the account_id column
+    df_all_inbounds = df_all_inbounds.merge(purchased_df, on='account_id', how='left') 
+    df_all_inbounds['buyer_username'] = df_all_inbounds['buyer_username'].replace(np.nan, '-')
 
     sorted_df = df_all_inbounds.sort_values(by='remark')
     print(sorted_df.columns)
