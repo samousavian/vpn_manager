@@ -126,7 +126,7 @@ def get_inbounds():
             response = s.request("POST", url, headers=headers, data=payload)
 
             # Handle non-200 responses or check response content as needed
-            if response.status_code != "200":  # or other success codes as appropriate
+            if response.status_code != 200:  # or other success codes as appropriate
                     error_message = f"Login failed for server: {server.name}. Status code: {response.status_code}"
                     raise ServerLoginError(error_message)
         except requests.exceptions.RequestException as e:
@@ -178,7 +178,7 @@ def all_inbounds(request):
     except ServerLoginError as e:
         return HttpResponse(str(e), status=400)  # Use appropriate HTTP status code
     
-    user_id_list = Purchased.objects.filter(buyer=request.user).values_list('user_id', flat=True)
+    user_id_list = Purchased.objects.filter(seller=request.user).values_list('user_id', flat=True)
 
     if request.user.is_superuser:
         df_all_inbounds = df.copy()
@@ -194,17 +194,17 @@ def all_inbounds(request):
     df_all_inbounds['int_total'] = np.ceil(df_all_inbounds['total']).astype(int)
 
     # Query the Purchased model and select related User models to access the username
-    purchased_qs = Purchased.objects.select_related('buyer').values('user_id', 'buyer__username')
+    purchased_qs = Purchased.objects.select_related('seller').values('user_id', 'seller__username')
 
     # Convert the QuerySet to a DataFrame
     purchased_df = pd.DataFrame(purchased_qs)
 
     # Rename columns for clarity and merging
-    purchased_df.rename(columns={'user_id': 'account_id', 'buyer__username': 'buyer_username'}, inplace=True)
+    purchased_df.rename(columns={'user_id': 'account_id', 'seller__username': 'seller_username'}, inplace=True)
 
     # Merge the DataFrames on the account_id column
     df_all_inbounds = df_all_inbounds.merge(purchased_df, on='account_id', how='left') 
-    df_all_inbounds['buyer_username'] = df_all_inbounds['buyer_username'].replace(np.nan, '-')
+    df_all_inbounds['seller_username'] = df_all_inbounds['seller_username'].replace(np.nan, '-')
 
     sorted_df = df_all_inbounds.sort_values(by='remark')
     print(sorted_df.columns)

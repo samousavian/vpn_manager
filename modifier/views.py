@@ -100,7 +100,7 @@ def update_inbound(request, user_id, remark, server_name, pre_traffic, expiry_ti
                     uuid=uuid,
                     total_used=total_used,
                     expiry_time=datetime.strptime(expiry_time, '%Y%m%d%H%M'),
-                    buyer=request.user
+                    seller=request.user
                 )
                 new_record.save()
 
@@ -264,9 +264,9 @@ def generate_config_link(domain, port, protocol, remark, settings):
 
 
 def add_to_purchased(user, remark, uuid):
-    buyer = user
+    seller = user
     uuid = uuid
-    purchased = Purchased(user_id=uuid, remark=remark, buyer=buyer)
+    purchased = Purchased(user_id=uuid, remark=remark, seller=seller)
     purchased.save()
 
     return
