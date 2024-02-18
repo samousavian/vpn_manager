@@ -4,7 +4,6 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from .forms import *
 from presenter.models import *
-from datarefresher.models import *
 # from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
