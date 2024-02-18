@@ -2,35 +2,33 @@
 
 {% block content %}
     <div class="container">
-        <h1 class="text-right mt-4">اطلاعات اکانت</h1>
-        <table class="table table-striped table-responsive mt-3">
-            <thead>
-                <tr>
-                    <th class="text-right">نام</th>
-                    <th class="text-right">مصرفی (GB)</th>
-                    <th class="text-right">خرید (GB)</th>
-                    <th class="text-right">دانلود (GB)</th>
-                    <th class="text-right">آپلود (GB)</th>
-                    <th class="text-right">انقضا</th>
-                    <th class="text-right">سرور</th>
-                    <th class="text-right">پورت</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for inbound in final_inbounds %}
+        <h1 class="text-right mt-4">اطلاعات اکانت {{ email }}</h1>
+        <div class="table-responsive">
+            <table class="table table-striped table-responsive mt-3">
+                <thead>
                     <tr>
-                        <td class="text-right">{{ inbound.remark }}</td>
-                        <td class="text-right {{ inbound.is_over_traffic|yesno:'text-danger,text-dark' }}">{{ inbound.traffic|floatformat:2 }} گیگ</td>
-                        <td class="text-right">{{ inbound.total|floatformat:2 }} گیگ</td>
-                        <td class="text-right">{{ inbound.down|floatformat:2 }} گیگ</td>
-                        <td class="text-right">{{ inbound.up|floatformat:2 }} گیگ</td>
-                        <td class="text-right">{{ inbound.time_remaining }} روز</td>
-                        <td class="text-right">{{ inbound.server }}</td>
-                        <td class="text-right">{{ inbound.port }}</td>
+                        <th class="text-right">مصرفی</th>
+                        <th class="text-right">خرید</th>
+                        <th class="text-right">دانلود</th>
+                        <th class="text-right">آپلود</th>
+                        <th class="text-right">انقضا</th>
+                        <th class="text-right">سرور</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for client in filtered_data %}
+                        <tr>
+                            <td class="text-right {{ client.is_over_traffic|yesno:'text-danger,text-dark' }}">{{ client.traffic|floatformat:2 }} گیگ</td>
+                            <td class="text-right">{{ client.total|floatformat:2 }} گیگ</td>
+                            <td class="text-right">{{ client.down|floatformat:2 }} گیگ</td>
+                            <td class="text-right">{{ client.up|floatformat:2 }} گیگ</td>
+                            <td class="text-right">{{ client.time_remaining }} روز</td>
+                            <td class="text-right">{{ client.server }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
 {% endblock %}

@@ -1,10 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 import numpy as np
-from datarefresher.models import Inbound
 from datetime import datetime
-from datarefresher.models import Server
-from .models import Purchased
+from .models import Server, Seller
 import pandas as pd
 import json, requests, uuid, random
 from django.shortcuts import get_object_or_404
@@ -102,15 +100,71 @@ def add_inbound(request):
         return HttpResponse("You Shall Not Pass!!")
 
 
-def profile(request, user_id):
+def profile(request, server_name, email):
     now = datetime.utcnow()
-    df_all_inbounds = get_inbounds()
-    target_value = user_id
-    filtered_row = df_all_inbounds[df_all_inbounds['settings'].str.contains(target_value)]
-    print(filtered_row.info)
-    final_inbounds = filtered_row.to_dict(orient='records')
-    context = {'final_inbounds': final_inbounds, 'now':now}
+    server = Server.objects.filter(name=server_name)
+
+    df = get_clients(servers=server)
+
+    filtered_df = df.loc[df['email'] == email]
+    filtered_data = filtered_df.to_dict('records')
+    context = {'filtered_data': filtered_data, 'now':now, 'email': email}
+
     return render(request, 'presenter/profile.html', context)
+
+
+def get_clients(servers):
+    client_data = []
+    now = datetime.utcnow()
+
+    for server in servers:
+        server_name = server.name
+        try:
+            s = requests.Session()
+            url = server.url + "login"
+            payload = f'username={server.user_name}&password={server.password}'
+            headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+            response = s.request("POST", url, headers=headers, data=payload)
+            # Handle non-200 responses or check response content as needed
+            if response.status_code != 200:  # or other success codes as appropriate
+                    error_message = f"Login failed for server: {server.name}. Status code: {response.status_code}"
+                    raise ServerLoginError(error_message)
+        except requests.exceptions.RequestException as e:
+            error_message = f"An error occurred with server: {server.name}. Error details: {e}"
+            raise ServerLoginError(error_message)
+        
+        # Make another request using the same session
+        url = server.url + "panel/api/inbounds/list"
+        headers = {'Accept': 'application/json',}
+        response = s.request("GET", url, headers=headers)
+
+        data = json.loads(response.text)
+        for obj in data['obj']:
+            for client in obj['clientStats']:
+                client_data.append({
+                    'remark': obj['remark'],
+                    'id': client['id'],
+                    'enable': client['enable'],
+                    'email': client['email'],
+                    'up': client['up'],
+                    'down': client['down'],
+                    'expiry_time': client['expiryTime'],
+                    'total': client['total'],
+                    'reset': client['reset'],
+                    'server': server_name
+        })
+    df = pd.DataFrame(client_data)
+
+    # df_modified['is_over_traffic'] = df.apply(lambda row: row['total'] < (row['up'] + row['down']), axis=1)
+    df['traffic'] = df.apply(lambda row: (row['up'] + row['down']) / 1073741824 , axis=1)
+    df['total'] = df.apply(lambda row: row['total'] / 1073741824 , axis=1)
+    df['up'] = df.apply(lambda row: row['up'] / 1073741824 , axis=1)
+    df['down'] = df.apply(lambda row: row['down'] / 1073741824 , axis=1)
+    df['expiry_time'] = df.apply(lambda row: datetime.utcfromtimestamp(row['expiry_time'] / 1000) , axis=1)
+    df['is_expired'] = df.apply(lambda row: row['expiry_time'] < now, axis=1)
+    df['time_remaining'] = (df['expiry_time'] - now).dt.days
+    df['time_remaining'] = df['time_remaining'].apply(lambda x: max(x, 0))
+    return df
 
 
 def get_inbounds():
@@ -161,63 +215,43 @@ def get_inbounds():
 def all_inbounds(request):
     if not request.user.is_authenticated:
         return redirect('login')
-    
-    now = datetime.utcnow()
-    def extract_account_id(settings):
-        try:
-            settings_data = json.loads(settings)
-            clients = settings_data.get("clients", [])
-            if clients:
-                return clients[0]["id"]
-            else:
-                return None
-        except (ValueError, KeyError, IndexError):
-            return None
-    try:
-        df = get_inbounds()
-    except ServerLoginError as e:
-        return HttpResponse(str(e), status=400)  # Use appropriate HTTP status code
-    
-    user_id_list = Purchased.objects.filter(seller=request.user).values_list('user_id', flat=True)
+    elif request.user.is_superuser:
+        servers = Server.objects.all()
+        df_all_clients = get_clients(servers=servers)
+        df = df_all_clients.copy()
+    elif request.user.is_staff:
+        sellers = Seller.objects.filter(seller=request.user)
+        servers = Server.objects.filter(seller__in=sellers).distinct()
+        df_all_clients = get_clients(servers=servers)
 
-    if request.user.is_superuser:
-        df_all_inbounds = df.copy()
-    elif user_id_list:
-        df_all_inbounds = df[df['settings'].str.contains('|'.join(user_id_list))]
+        remarks_list = sellers.values_list('remark', flat=True)
+        filtered_df_1 = df_all_clients[df_all_clients['remark'].isin(remarks_list)]
+
+        emails_list = sellers.values_list('email', flat=True)
+        filtered_df_2 = df_all_clients[df_all_clients['email'].isin(emails_list)]
+
+        df = pd.concat([filtered_df_1, filtered_df_2]).drop_duplicates().reset_index(drop=True)
+
     else:
         return HttpResponse("You Have No Power Here!!")
-        
+
+    now = datetime.utcnow()
     
-    df_all_inbounds["account_id"] = df_all_inbounds["settings"].apply(extract_account_id)
-    df_all_inbounds['formatted_expiry_time'] = df_all_inbounds['expiry_time'].dt.strftime('%Y%m%d%H%M')
-    df_all_inbounds['int_traffic'] = np.ceil(df_all_inbounds['traffic']).astype(int)
-    df_all_inbounds['int_total'] = np.ceil(df_all_inbounds['total']).astype(int)
+    # df["account_id"] = df["settings"].apply(extract_account_id)
+    df['formatted_expiry_time'] = df['expiry_time'].dt.strftime('%Y%m%d%H%M')
+    df['int_traffic'] = np.ceil(df['traffic']).astype(int)
+    df['int_total'] = np.ceil(df['total']).astype(int)
 
-    # Query the Purchased model and select related User models to access the username
-    purchased_qs = Purchased.objects.select_related('seller').values('user_id', 'seller__username')
+    sorted_df = df.sort_values(by='email')
 
-    # Convert the QuerySet to a DataFrame
-    purchased_df = pd.DataFrame(purchased_qs)
-
-    # Rename columns for clarity and merging
-    purchased_df.rename(columns={'user_id': 'account_id', 'seller__username': 'seller_username'}, inplace=True)
-
-    # Merge the DataFrames on the account_id column
-    df_all_inbounds = df_all_inbounds.merge(purchased_df, on='account_id', how='left') 
-    df_all_inbounds['seller_username'] = df_all_inbounds['seller_username'].replace(np.nan, '-')
-
-    sorted_df = df_all_inbounds.sort_values(by='remark')
-    print(sorted_df.columns)
-    print(sorted_df.sample())
-
-    df_disabled_inbounds =  sorted_df[df_all_inbounds['enable'] == False]
-    df_enabled_inbounds =  sorted_df[df_all_inbounds['enable'] == True]
+    df_disabled_clients =  sorted_df[df['enable'] == False]
+    df_enabled_clients =  sorted_df[df['enable'] == True]
     all_inbounds = sorted_df.to_dict(orient='records')
-    disabled_inbounds = df_disabled_inbounds.to_dict(orient='records')
-    enabled_inbounds = df_enabled_inbounds.to_dict(orient='records')
+    disabled_clients = df_disabled_clients.to_dict(orient='records')
+    enabled_clients = df_enabled_clients.to_dict(orient='records')
 
     # Pass the filtered objects to a template   
-    context = {'disabled_inbounds': disabled_inbounds, 'enabled_inbounds': enabled_inbounds, 'all_inbounds': all_inbounds, 'now':now}
+    context = {'disabled_clients': disabled_clients, 'enabled_clients': enabled_clients, 'all_inbounds': all_inbounds, 'now':now}
     return render(request, 'presenter/all_inbounds.html', context)
 
 

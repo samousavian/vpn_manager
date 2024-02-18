@@ -1,138 +1,654 @@
 {
-  "dns": {
-    "disableFallback": true,
-    "servers": [
-      {
-        "address": "https://8.8.8.8/dns-query",
-        "domains": [],
-        "queryStrategy": ""
-      },
-      {
-        "address": "localhost",
-        "domains": [
-          "full:het4.yashm.shop"
-        ],
-        "queryStrategy": ""
-      }
-    ],
-    "tag": "dns"
-  },
-  "inbounds": [
-    {
-      "listen": "127.0.0.1",
-      "port": 2080,
-      "protocol": "socks",
-      "settings": {
-        "udp": true
-      },
-      "sniffing": {
-        "destOverride": [
-          "http",
-          "tls",
-          "quic"
-        ],
-        "enabled": true,
-        "metadataOnly": false,
-        "routeOnly": true
-      },
-      "tag": "socks-in"
-    }
-  ],
-  "log": {
-    "loglevel": "warning"
-  },
-  "outbounds": [
-    {
-      "domainStrategy": "AsIs",
-      "flow": null,
-      "protocol": "vless",
-      "settings": {
-        "vnext": [
-          {
-            "address": "het4.yashm.shop",
-            "port": 443,
-            "users": [
-              {
-                "encryption": "none",
-                "flow": "",
-                "id": "4468a414-5e11-4837-9694-62538fa13926"
-              }
-            ]
-          }
-        ]
-      },
-      "streamSettings": {
-        "network": "ws",
-        "security": "tls",
-        "tlsSettings": {
-          "serverName": "het4.yashm.shop"
+    "success": true,
+    "msg": "",
+    "obj": [
+        {
+            "id": 2,
+            "up": 3781966841,
+            "down": 47561477061,
+            "total": 0,
+            "remark": "M1",
+            "enable": true,
+            "expiryTime": 0,
+            "clientStats": [
+                {
+                    "id": 2,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "main",
+                    "up": 23899917,
+                    "down": 221131631,
+                    "expiryTime": 1708269344000,
+                    "total": 5368709120,
+                    "reset": 2
+                },
+                {
+                    "id": 23,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "esfandiarpour",
+                    "up": 167599736,
+                    "down": 1950688736,
+                    "expiryTime": 1713550994000,
+                    "total": 177167400960,
+                    "reset": 0
+                },
+                {
+                    "id": 24,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "shafiee-helli",
+                    "up": 411821078,
+                    "down": 5495342495,
+                    "expiryTime": 1710265024000,
+                    "total": 77309411328,
+                    "reset": 0
+                },
+                {
+                    "id": 26,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "heydary",
+                    "up": 40347362,
+                    "down": 1890932609,
+                    "expiryTime": 1710032124000,
+                    "total": 26843545600,
+                    "reset": 0
+                },
+                {
+                    "id": 27,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "ehsan",
+                    "up": 84513939,
+                    "down": 1516799816,
+                    "expiryTime": 1710073444000,
+                    "total": 21474836480,
+                    "reset": 0
+                },
+                {
+                    "id": 28,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "madadiuncle",
+                    "up": 107642656,
+                    "down": 2406422321,
+                    "expiryTime": 1710516044000,
+                    "total": 31675383808,
+                    "reset": 0
+                },
+                {
+                    "id": 31,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "hadi",
+                    "up": 212377632,
+                    "down": 3490816074,
+                    "expiryTime": 1709572584000,
+                    "total": 27917287424,
+                    "reset": 0
+                },
+                {
+                    "id": 44,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "Fatemeh-hadi",
+                    "up": 125197475,
+                    "down": 3912831545,
+                    "expiryTime": 1714756904000,
+                    "total": 81604378624,
+                    "reset": 0
+                },
+                {
+                    "id": 45,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "Parisa-hadi",
+                    "up": 614359126,
+                    "down": 4970222622,
+                    "expiryTime": 1714757754000,
+                    "total": 77309411328,
+                    "reset": 0
+                },
+                {
+                    "id": 46,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "abazari",
+                    "up": 202150905,
+                    "down": 4405871217,
+                    "expiryTime": 1708431944000,
+                    "total": 32212254720,
+                    "reset": 0
+                },
+                {
+                    "id": 47,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "mobin",
+                    "up": 786013175,
+                    "down": 6311342877,
+                    "expiryTime": 1709919384000,
+                    "total": 30064771072,
+                    "reset": 0
+                },
+                {
+                    "id": 48,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "mehran-new",
+                    "up": 150195069,
+                    "down": 1345527539,
+                    "expiryTime": 1710238844000,
+                    "total": 14495514624,
+                    "reset": 0
+                },
+                {
+                    "id": 49,
+                    "inboundId": 2,
+                    "enable": true,
+                    "email": "qorbani",
+                    "up": 236103336,
+                    "down": 4770667868,
+                    "expiryTime": 1709572664000,
+                    "total": 5368709120,
+                    "reset": 0
+                }
+            ],
+            "listen": "",
+            "port": 14515,
+            "protocol": "vless",
+            "settings": "{\n  \"clients\": [\n    {\n      \"email\": \"main\",\n      \"enable\": true,\n      \"expiryTime\": 1708269344000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"569f1f96-2acd-4379-935a-19507a681472\",\n      \"limitIp\": 0,\n      \"reset\": 2,\n      \"subId\": \"wfulp5ua400x411t\",\n      \"tgId\": \"\",\n      \"totalGB\": 5368709120\n    },\n    {\n      \"email\": \"esfandiarpour\",\n      \"enable\": true,\n      \"expiryTime\": 1713550994000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"442dd897-b92b-4bc4-9ad5-0fee14ffb36f\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"wdz0h9f0kyf33xrd\",\n      \"tgId\": \"\",\n      \"totalGB\": 177167400960\n    },\n    {\n      \"email\": \"shafiee-helli\",\n      \"enable\": true,\n      \"expiryTime\": 1710265024000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"cca52a6c-e6c9-4d87-8eca-739237210392\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"ur0dys64j9yydbpk\",\n      \"tgId\": \"\",\n      \"totalGB\": 77309411328\n    },\n    {\n      \"email\": \"heydary\",\n      \"enable\": true,\n      \"expiryTime\": 1710032124000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"e6009d87-dad2-422e-97d8-a0bcf520106c\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"0cqrmnqrwnuwbj9g\",\n      \"tgId\": \"\",\n      \"totalGB\": 26843545600\n    },\n    {\n      \"email\": \"ehsan\",\n      \"enable\": true,\n      \"expiryTime\": 1710073444000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"e6f4c7f9-f951-4d01-97b2-5a7d800aa9a1\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"kl4a7lf6lfmz68dh\",\n      \"tgId\": \"\",\n      \"totalGB\": 21474836480\n    },\n    {\n      \"email\": \"madadiuncle\",\n      \"enable\": true,\n      \"expiryTime\": 1710516044000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"a22513cb-8e23-4995-b9e7-82a682dfba81\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"t8vvxmxv680hdggo\",\n      \"tgId\": \"\",\n      \"totalGB\": 31675383808\n    },\n    {\n      \"email\": \"hadi\",\n      \"enable\": true,\n      \"expiryTime\": 1709572584000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"66740034-aec4-4371-9df3-45f3d0743d8c\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"frgre4mebs3qxa1h\",\n      \"tgId\": \"\",\n      \"totalGB\": 27917287424\n    },\n    {\n      \"email\": \"Fatemeh-hadi\",\n      \"enable\": true,\n      \"expiryTime\": 1714756904000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"6117c4b5-8c2d-4440-a6c6-b0f1eb203bfb\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"sfkl3cfqd0cc2aqp\",\n      \"tgId\": \"\",\n      \"totalGB\": 81604378624\n    },\n    {\n      \"email\": \"Parisa-hadi\",\n      \"enable\": true,\n      \"expiryTime\": 1714757754000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"fc28c6ba-0982-4cf4-9b62-769cb4ea8e4f\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"j2htu75e64codc3v\",\n      \"tgId\": \"\",\n      \"totalGB\": 77309411328\n    },\n    {\n      \"email\": \"abazari\",\n      \"enable\": true,\n      \"expiryTime\": 1708431944000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"869cb2d4-bbfb-4505-acfc-8d4c19a1cf97\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"8nmru0zeakjifis8\",\n      \"tgId\": \"\",\n      \"totalGB\": 32212254720\n    },\n    {\n      \"email\": \"mobin\",\n      \"enable\": true,\n      \"expiryTime\": 1709919384000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"ebf04105-707b-49a2-bb1e-ea41cbda5bd4\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"wuwmi4wenknxiflg\",\n      \"tgId\": \"\",\n      \"totalGB\": 30064771072\n    },\n    {\n      \"email\": \"mehran-new\",\n      \"enable\": true,\n      \"expiryTime\": 1710238844000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"f320ef6d-75ac-4c68-b999-f391fe5253fc\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"wx15p8igwz02016b\",\n      \"tgId\": \"\",\n      \"totalGB\": 14495514624\n    },\n    {\n      \"email\": \"qorbani\",\n      \"enable\": true,\n      \"expiryTime\": 1709572664000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"e48e93a4-bb34-4ea1-ae06-97f5b45057c2\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"qh9b1hxc4d7af2iu\",\n      \"tgId\": \"\",\n      \"totalGB\": 5368709120\n    }\n  ],\n  \"decryption\": \"none\",\n  \"fallbacks\": []\n}",
+            "streamSettings": "{\n  \"network\": \"tcp\",\n  \"security\": \"tls\",\n  \"externalProxy\": [],\n  \"tlsSettings\": {\n    \"serverName\": \"m1.kahroba.top\",\n    \"minVersion\": \"1.2\",\n    \"maxVersion\": \"1.3\",\n    \"cipherSuites\": \"\",\n    \"rejectUnknownSni\": false,\n    \"certificates\": [\n      {\n        \"certificateFile\": \"/root/cert.crt\",\n        \"keyFile\": \"/root/private.key\",\n        \"ocspStapling\": 3600\n      }\n    ],\n    \"alpn\": [\n      \"h2\",\n      \"http/1.1\"\n    ],\n    \"settings\": {\n      \"allowInsecure\": false,\n      \"fingerprint\": \"\"\n    }\n  },\n  \"tcpSettings\": {\n    \"acceptProxyProtocol\": false,\n    \"header\": {\n      \"type\": \"none\"\n    }\n  }\n}",
+            "tag": "inbound-0.0.0.0:14515",
+            "sniffing": "{\n  \"enabled\": true,\n  \"destOverride\": [\n    \"http\",\n    \"tls\",\n    \"quic\",\n    \"fakedns\"\n  ]\n}"
         },
-        "wsSettings": {
-          "headers": {
-            "Host": "het4.yashm.shop"
-          },
-          "path": "/xgvjws"
+        {
+            "id": 23,
+            "up": 2623856262,
+            "down": 16413505588,
+            "total": 0,
+            "remark": "M1Ramtin",
+            "enable": true,
+            "expiryTime": 0,
+            "clientStats": [
+                {
+                    "id": 30,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "ramtin",
+                    "up": 82754778,
+                    "down": 811363574,
+                    "expiryTime": 1710601174000,
+                    "total": 32212254720,
+                    "reset": 0
+                },
+                {
+                    "id": 32,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "qazaleahangi",
+                    "up": 1845520273,
+                    "down": 4448555343,
+                    "expiryTime": 1710601394000,
+                    "total": 32212254720,
+                    "reset": 0
+                },
+                {
+                    "id": 33,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "NiloofarRoshanzadeh",
+                    "up": 70259716,
+                    "down": 1779261637,
+                    "expiryTime": 1708864234000,
+                    "total": 27917287424,
+                    "reset": 0
+                },
+                {
+                    "id": 34,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "MaryamRoshanzadeh",
+                    "up": 38831052,
+                    "down": 988427965,
+                    "expiryTime": 1710492604000,
+                    "total": 31138512896,
+                    "reset": 0
+                },
+                {
+                    "id": 35,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "GolsaDanafar",
+                    "up": 2917612,
+                    "down": 14150986,
+                    "expiryTime": 1709377974000,
+                    "total": 24159191040,
+                    "reset": 0
+                },
+                {
+                    "id": 36,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "AbtinDanafar",
+                    "up": 293597405,
+                    "down": 3247328766,
+                    "expiryTime": 1710241894000,
+                    "total": 31138512896,
+                    "reset": 0
+                },
+                {
+                    "id": 37,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "khaled-jazayeri",
+                    "up": 12716681,
+                    "down": 433191169,
+                    "expiryTime": 1709615604000,
+                    "total": 31138512896,
+                    "reset": 0
+                },
+                {
+                    "id": 38,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "nazanin-ranjbaran",
+                    "up": 74480487,
+                    "down": 2953512527,
+                    "expiryTime": 1708631584000,
+                    "total": 13958643712,
+                    "reset": 0
+                },
+                {
+                    "id": 39,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "mohammad-shahbazi",
+                    "up": 17522610,
+                    "down": 488502638,
+                    "expiryTime": 1710625204000,
+                    "total": 32212254720,
+                    "reset": 0
+                },
+                {
+                    "id": 40,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "ali-ranjbaran",
+                    "up": 49277707,
+                    "down": 868398573,
+                    "expiryTime": 1710619164000,
+                    "total": 32212254720,
+                    "reset": 0
+                },
+                {
+                    "id": 41,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "parsa-zaker",
+                    "up": 0,
+                    "down": 0,
+                    "expiryTime": -604800000,
+                    "total": 31138512896,
+                    "reset": 0
+                },
+                {
+                    "id": 42,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "marjan-roshanzadeh",
+                    "up": 0,
+                    "down": 0,
+                    "expiryTime": -1296000000,
+                    "total": 32212254720,
+                    "reset": 0
+                },
+                {
+                    "id": 43,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "shirdel",
+                    "up": 1180849,
+                    "down": 50175029,
+                    "expiryTime": 1710660044000,
+                    "total": 32212254720,
+                    "reset": 0
+                },
+                {
+                    "id": 77,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "sodabe-roshanzadeh",
+                    "up": 0,
+                    "down": 0,
+                    "expiryTime": -864000000,
+                    "total": 12884901888,
+                    "reset": 0
+                },
+                {
+                    "id": 78,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "zohre-behzadseresht",
+                    "up": 0,
+                    "down": 0,
+                    "expiryTime": -2592000000,
+                    "total": 32212254720,
+                    "reset": 0
+                },
+                {
+                    "id": 79,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "mahmood-danafar",
+                    "up": 0,
+                    "down": 0,
+                    "expiryTime": -2160000000,
+                    "total": 16106127360,
+                    "reset": 0
+                },
+                {
+                    "id": 80,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "mahsa-hazrati",
+                    "up": 0,
+                    "down": 0,
+                    "expiryTime": -864000000,
+                    "total": 8589934592,
+                    "reset": 0
+                },
+                {
+                    "id": 81,
+                    "inboundId": 23,
+                    "enable": true,
+                    "email": "5biwuhhg",
+                    "up": 0,
+                    "down": 0,
+                    "expiryTime": -2592000000,
+                    "total": 32212254720,
+                    "reset": 0
+                }
+            ],
+            "listen": "",
+            "port": 49764,
+            "protocol": "vless",
+            "settings": "{\n  \"clients\": [\n    {\n      \"email\": \"ramtin\",\n      \"enable\": true,\n      \"expiryTime\": 1710601174000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"9e0355c8-c038-46d4-937c-34b05db624d6\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"nd24zulndo211hym\",\n      \"tgId\": \"\",\n      \"totalGB\": 32212254720\n    },\n    {\n      \"email\": \"qazaleahangi\",\n      \"enable\": true,\n      \"expiryTime\": 1710601394000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"eca07724-6b25-4b39-a821-fc2b1d4a4ddb\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"dffzpylrecewhypv\",\n      \"tgId\": \"\",\n      \"totalGB\": 32212254720\n    },\n    {\n      \"email\": \"NiloofarRoshanzadeh\",\n      \"enable\": true,\n      \"expiryTime\": 1708864234000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"869bb7bf-4c03-48dc-a144-db3e389f3f9d\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"h45qajf60fwnetwi\",\n      \"tgId\": \"\",\n      \"totalGB\": 27917287424\n    },\n    {\n      \"email\": \"MaryamRoshanzadeh\",\n      \"enable\": true,\n      \"expiryTime\": 1710492604000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"e863e65d-cedd-40d5-b198-e8db6d340605\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"12fyxa4lu5ld5m2u\",\n      \"tgId\": \"\",\n      \"totalGB\": 31138512896\n    },\n    {\n      \"email\": \"GolsaDanafar\",\n      \"enable\": true,\n      \"expiryTime\": 1709377974000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"4ef9d099-fa98-42a2-98cb-bd889b284719\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"zrbq7mb01iqwj95a\",\n      \"tgId\": \"\",\n      \"totalGB\": 24159191040\n    },\n    {\n      \"email\": \"AbtinDanafar\",\n      \"enable\": true,\n      \"expiryTime\": 1710241894000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"53cf30bf-28be-44bf-8533-e593f109d6a7\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"ynd0ilk04tthgzwd\",\n      \"tgId\": \"\",\n      \"totalGB\": 31138512896\n    },\n    {\n      \"email\": \"khaled-jazayeri\",\n      \"enable\": true,\n      \"expiryTime\": 1709615604000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"e3738056-5936-4166-adba-73a93a623b05\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"42yb6tt758wy2txu\",\n      \"tgId\": \"\",\n      \"totalGB\": 31138512896\n    },\n    {\n      \"email\": \"nazanin-ranjbaran\",\n      \"enable\": true,\n      \"expiryTime\": 1708631584000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"15ccb1ff-b2a5-4f8e-b306-1caa9d8b3cb3\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"yqxqk7igbgqkhtrz\",\n      \"tgId\": \"\",\n      \"totalGB\": 13958643712\n    },\n    {\n      \"email\": \"mohammad-shahbazi\",\n      \"enable\": true,\n      \"expiryTime\": 1710625204000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"8563ed37-06c0-49d8-bc1c-be40395f7b34\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"8t0k0yhmz1r8qce1\",\n      \"tgId\": \"\",\n      \"totalGB\": 32212254720\n    },\n    {\n      \"email\": \"ali-ranjbaran\",\n      \"enable\": true,\n      \"expiryTime\": 1710619164000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"e55588fe-d3b9-44b1-9b08-496575837693\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"eh8qpykivk3qygsn\",\n      \"tgId\": \"\",\n      \"totalGB\": 32212254720\n    },\n    {\n      \"email\": \"parsa-zaker\",\n      \"enable\": true,\n      \"expiryTime\": -604800000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"f488e6ef-e362-4123-b9f0-c983882ee2c4\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"ahn92l7rew3pwm4b\",\n      \"tgId\": \"\",\n      \"totalGB\": 31138512896\n    },\n    {\n      \"email\": \"marjan-roshanzadeh\",\n      \"enable\": true,\n      \"expiryTime\": -1296000000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"39ace99c-1ecf-409d-8e97-45ce5e92d339\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"isrmodgsgxj5ad6u\",\n      \"tgId\": \"\",\n      \"totalGB\": 32212254720\n    },\n    {\n      \"email\": \"shirdel\",\n      \"enable\": true,\n      \"expiryTime\": 1710660044000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"52c1d754-2cc7-4b71-bf3c-450d0b79f1ee\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"21kyhs0juzzs899c\",\n      \"tgId\": \"\",\n      \"totalGB\": 32212254720\n    },\n    {\n      \"email\": \"sodabe-roshanzadeh\",\n      \"enable\": true,\n      \"expiryTime\": -864000000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"980d55ff-446e-4bef-8b6d-693415d1a08c\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"g9np6uljoe1a47qk\",\n      \"tgId\": \"\",\n      \"totalGB\": 12884901888\n    },\n    {\n      \"email\": \"zohre-behzadseresht\",\n      \"enable\": true,\n      \"expiryTime\": -2592000000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"2b35529a-0f7d-4b07-8083-fc534327629d\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"4ua2uki8ek0ts9sy\",\n      \"tgId\": \"\",\n      \"totalGB\": 32212254720\n    },\n    {\n      \"email\": \"mahmood-danafar\",\n      \"enable\": true,\n      \"expiryTime\": -2160000000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"744c1a57-2683-47fa-8d34-fa5f93718a41\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"qdninxstqp3uhm0z\",\n      \"tgId\": \"\",\n      \"totalGB\": 16106127360\n    },\n    {\n      \"email\": \"mahsa-hazrati\",\n      \"enable\": true,\n      \"expiryTime\": -864000000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"e5fb9512-af77-48c8-a68d-4cc9ad80be33\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"f1ja926rvg7bz13w\",\n      \"tgId\": \"\",\n      \"totalGB\": 8589934592\n    },\n    {\n      \"email\": \"5biwuhhg\",\n      \"enable\": true,\n      \"expiryTime\": -2592000000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"9af39694-e05e-4bba-bbc8-c771833cdd4e\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"zymswezk3dlxllg3\",\n      \"tgId\": \"\",\n      \"totalGB\": 32212254720\n    }\n  ],\n  \"decryption\": \"none\",\n  \"fallbacks\": []\n}",
+            "streamSettings": "{\n  \"network\": \"tcp\",\n  \"security\": \"tls\",\n  \"externalProxy\": [],\n  \"tlsSettings\": {\n    \"serverName\": \"m1.kahroba.top\",\n    \"minVersion\": \"1.2\",\n    \"maxVersion\": \"1.3\",\n    \"cipherSuites\": \"\",\n    \"rejectUnknownSni\": false,\n    \"certificates\": [\n      {\n        \"certificateFile\": \"/root/cert.crt\",\n        \"keyFile\": \"/root/private.key\",\n        \"ocspStapling\": 3600\n      }\n    ],\n    \"alpn\": [\n      \"h2\",\n      \"http/1.1\"\n    ],\n    \"settings\": {\n      \"allowInsecure\": false,\n      \"fingerprint\": \"\"\n    }\n  },\n  \"tcpSettings\": {\n    \"acceptProxyProtocol\": false,\n    \"header\": {\n      \"type\": \"none\"\n    }\n  }\n}",
+            "tag": "inbound-0.0.0.0:49764",
+            "sniffing": "{\n  \"enabled\": true,\n  \"destOverride\": [\n    \"http\",\n    \"tls\",\n    \"quic\",\n    \"fakedns\"\n  ]\n}"
+        },
+        {
+            "id": 24,
+            "up": 3674237166,
+            "down": 49538261516,
+            "total": 0,
+            "remark": "M1Mokh",
+            "enable": true,
+            "expiryTime": 0,
+            "clientStats": [
+                {
+                    "id": 54,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "mokhtari",
+                    "up": 1123555992,
+                    "down": 10391089593,
+                    "expiryTime": 1709123224000,
+                    "total": 118111600640,
+                    "reset": 0
+                },
+                {
+                    "id": 55,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "aqakhani",
+                    "up": 11927047,
+                    "down": 384521293,
+                    "expiryTime": 1708922414000,
+                    "total": 10737418240,
+                    "reset": 0
+                },
+                {
+                    "id": 56,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "e-vosouqi",
+                    "up": 94784408,
+                    "down": 1389198440,
+                    "expiryTime": 1710613544000,
+                    "total": 54760833024,
+                    "reset": 0
+                },
+                {
+                    "id": 57,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "p-vosouqi",
+                    "up": 629555403,
+                    "down": 4229022216,
+                    "expiryTime": 1708701884000,
+                    "total": 13958643712,
+                    "reset": 0
+                },
+                {
+                    "id": 58,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "motevalli",
+                    "up": 196520512,
+                    "down": 2719075215,
+                    "expiryTime": 1712071204000,
+                    "total": 13958643712,
+                    "reset": 0
+                },
+                {
+                    "id": 59,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "qolipour",
+                    "up": 84492487,
+                    "down": 1531957266,
+                    "expiryTime": 1708701564000,
+                    "total": 13958643712,
+                    "reset": 0
+                },
+                {
+                    "id": 60,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "e-shamami",
+                    "up": 112458432,
+                    "down": 4374758286,
+                    "expiryTime": 1708787704000,
+                    "total": 13958643712,
+                    "reset": 0
+                },
+                {
+                    "id": 61,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "rafiee",
+                    "up": 0,
+                    "down": 0,
+                    "expiryTime": -777600000,
+                    "total": 0,
+                    "reset": 0
+                },
+                {
+                    "id": 62,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "hmokhtari",
+                    "up": 8244887,
+                    "down": 140195653,
+                    "expiryTime": 1708593224000,
+                    "total": 18253611008,
+                    "reset": 0
+                },
+                {
+                    "id": 63,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "behroozi",
+                    "up": 111909448,
+                    "down": 2209805339,
+                    "expiryTime": 1709296084000,
+                    "total": 15032385536,
+                    "reset": 0
+                },
+                {
+                    "id": 64,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "salar",
+                    "up": 143558148,
+                    "down": 3283634185,
+                    "expiryTime": 1709022104000,
+                    "total": 12884901888,
+                    "reset": 0
+                },
+                {
+                    "id": 65,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "hmohammadi",
+                    "up": 87445093,
+                    "down": 3112683071,
+                    "expiryTime": 1708529054000,
+                    "total": 28454158336,
+                    "reset": 0
+                },
+                {
+                    "id": 66,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "m-shamami",
+                    "up": 27800158,
+                    "down": 635405948,
+                    "expiryTime": 1710268864000,
+                    "total": 64424509440,
+                    "reset": 0
+                },
+                {
+                    "id": 67,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "rasool",
+                    "up": 676480,
+                    "down": 7942538,
+                    "expiryTime": 1710008624000,
+                    "total": 27917287424,
+                    "reset": 0
+                },
+                {
+                    "id": 68,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "hosein",
+                    "up": 54261670,
+                    "down": 1080036201,
+                    "expiryTime": 1709911964000,
+                    "total": 94489280512,
+                    "reset": 0
+                },
+                {
+                    "id": 69,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "nejati",
+                    "up": 70138470,
+                    "down": 2987643731,
+                    "expiryTime": 1708364654000,
+                    "total": 22548578304,
+                    "reset": 0
+                },
+                {
+                    "id": 70,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "mom",
+                    "up": 26482231,
+                    "down": 1062224176,
+                    "expiryTime": 1709493284000,
+                    "total": 19327352832,
+                    "reset": 0
+                },
+                {
+                    "id": 71,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "salmani",
+                    "up": 131525857,
+                    "down": 3330445988,
+                    "expiryTime": 1710257014000,
+                    "total": 30064771072,
+                    "reset": 0
+                },
+                {
+                    "id": 72,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "khodajoo",
+                    "up": 0,
+                    "down": 0,
+                    "expiryTime": -1900800000,
+                    "total": 50465865728,
+                    "reset": 0
+                },
+                {
+                    "id": 73,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "mr-taraz",
+                    "up": 9694376,
+                    "down": 1050133700,
+                    "expiryTime": 1708979254000,
+                    "total": 23622320128,
+                    "reset": 0
+                },
+                {
+                    "id": 74,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "ms-taraz",
+                    "up": 50119991,
+                    "down": 2313807229,
+                    "expiryTime": 1708971174000,
+                    "total": 19327352832,
+                    "reset": 0
+                },
+                {
+                    "id": 75,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "seyedi",
+                    "up": 256715616,
+                    "down": 3159340656,
+                    "expiryTime": 1710519174000,
+                    "total": 32212254720,
+                    "reset": 0
+                },
+                {
+                    "id": 76,
+                    "inboundId": 24,
+                    "enable": true,
+                    "email": "sarafrazi",
+                    "up": 20139952,
+                    "down": 479049151,
+                    "expiryTime": 1710759964000,
+                    "total": 32212254720,
+                    "reset": 0
+                }
+            ],
+            "listen": "",
+            "port": 45753,
+            "protocol": "vless",
+            "settings": "{\n  \"clients\": [\n    {\n      \"email\": \"mokhtari\",\n      \"enable\": true,\n      \"expiryTime\": 1709123224000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"1eb993fb-6d4b-483d-abd5-6285027f1ab2\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"qe9mn7we5bdv2yu7\",\n      \"tgId\": \"\",\n      \"totalGB\": 118111600640\n    },\n    {\n      \"email\": \"aqakhani\",\n      \"enable\": true,\n      \"expiryTime\": 1708922414000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"1c853657-7dc3-4687-9a3c-8342061b71f1\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"z7gqt0gn9n1r8z0o\",\n      \"tgId\": \"\",\n      \"totalGB\": 10737418240\n    },\n    {\n      \"email\": \"e-vosouqi\",\n      \"enable\": true,\n      \"expiryTime\": 1710613544000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"2105a47d-5c92-4e5d-9475-6a25ae1c33e5\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"9xlm4o1k7h3oy98u\",\n      \"tgId\": \"\",\n      \"totalGB\": 54760833024\n    },\n    {\n      \"email\": \"p-vosouqi\",\n      \"enable\": true,\n      \"expiryTime\": 1708701884000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"7cad6fe1-077d-4f4e-8576-17cce63f2c16\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"7qkurcceb42l30qr\",\n      \"tgId\": \"\",\n      \"totalGB\": 13958643712\n    },\n    {\n      \"email\": \"motevalli\",\n      \"enable\": true,\n      \"expiryTime\": 1712071204000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"d42b22f3-beb9-4302-b3d8-77c27a3ddfdc\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"r8wtj5vdv8hhjada\",\n      \"tgId\": \"\",\n      \"totalGB\": 13958643712\n    },\n    {\n      \"email\": \"qolipour\",\n      \"enable\": true,\n      \"expiryTime\": 1708701564000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"fc5e50a4-9c00-48f7-a4c3-77e0632e76f4\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"tygvh6gmpd1quocs\",\n      \"tgId\": \"\",\n      \"totalGB\": 13958643712\n    },\n    {\n      \"email\": \"e-shamami\",\n      \"enable\": true,\n      \"expiryTime\": 1708787704000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"2ca45cf6-5c6c-4170-a5f4-99c05826884c\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"5v8hm6xdod2qk0pb\",\n      \"tgId\": \"\",\n      \"totalGB\": 13958643712\n    },\n    {\n      \"email\": \"rafiee\",\n      \"enable\": true,\n      \"expiryTime\": -777600000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"94dee8d6-3af2-475c-9322-1931a25608e8\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"on1tihl4wen4buyb\",\n      \"tgId\": \"\",\n      \"totalGB\": 0\n    },\n    {\n      \"email\": \"hmokhtari\",\n      \"enable\": true,\n      \"expiryTime\": 1708593224000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"34c2c0a8-a269-4c34-b3f3-f28da64185f9\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"2tz9x0259jhqi11j\",\n      \"tgId\": \"\",\n      \"totalGB\": 18253611008\n    },\n    {\n      \"email\": \"behroozi\",\n      \"enable\": true,\n      \"expiryTime\": 1709296084000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"4f306851-bbed-4afd-8016-2e4d793904a2\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"wrtnfboz7c52paip\",\n      \"tgId\": \"\",\n      \"totalGB\": 15032385536\n    },\n    {\n      \"email\": \"salar\",\n      \"enable\": true,\n      \"expiryTime\": 1709022104000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"09d50c58-acbe-4005-b281-0464b8a23629\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"vxzoalpgvjt61y8n\",\n      \"tgId\": \"\",\n      \"totalGB\": 12884901888\n    },\n    {\n      \"email\": \"hmohammadi\",\n      \"enable\": true,\n      \"expiryTime\": 1708529054000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"22bbe674-fc9c-497f-96fb-f6931958fae0\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"a6tfsncam28lqdfr\",\n      \"tgId\": \"\",\n      \"totalGB\": 28454158336\n    },\n    {\n      \"email\": \"m-shamami\",\n      \"enable\": true,\n      \"expiryTime\": 1710268864000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"b2e589d2-880d-4506-8a64-f3b994575caa\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"wkzybfvzqxetm29o\",\n      \"tgId\": \"\",\n      \"totalGB\": 64424509440\n    },\n    {\n      \"email\": \"rasool\",\n      \"enable\": true,\n      \"expiryTime\": 1710008624000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"ff5fff00-005b-4fe1-bbb7-409518da0707\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"4a0nz7s9awuo7cze\",\n      \"tgId\": \"\",\n      \"totalGB\": 27917287424\n    },\n    {\n      \"email\": \"hosein\",\n      \"enable\": true,\n      \"expiryTime\": 1709911964000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"8a3fc9a4-c901-4be8-b257-98f8d6d3af56\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"x1xxbsmjcukwbze1\",\n      \"tgId\": \"\",\n      \"totalGB\": 94489280512\n    },\n    {\n      \"email\": \"nejati\",\n      \"enable\": true,\n      \"expiryTime\": 1708364654000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"899767dc-cadd-4845-9173-22def34d33aa\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"20dyjr6uzzcmucmj\",\n      \"tgId\": \"\",\n      \"totalGB\": 22548578304\n    },\n    {\n      \"email\": \"mom\",\n      \"enable\": true,\n      \"expiryTime\": 1709493284000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"0a43597f-2f3e-43f3-a034-535dfceca2f7\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"xs7nepy05kwuhm1a\",\n      \"tgId\": \"\",\n      \"totalGB\": 19327352832\n    },\n    {\n      \"email\": \"salmani\",\n      \"enable\": true,\n      \"expiryTime\": 1710257014000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"067b12fd-4b07-4ef4-b1ff-4c3159525a7e\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"r1mewokioqvcqdlz\",\n      \"tgId\": \"\",\n      \"totalGB\": 30064771072\n    },\n    {\n      \"email\": \"khodajoo\",\n      \"enable\": true,\n      \"expiryTime\": -1900800000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"4f60e6d5-304e-47e3-902c-0772eed2b7aa\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"89pld5vc5orgggm6\",\n      \"tgId\": \"\",\n      \"totalGB\": 50465865728\n    },\n    {\n      \"email\": \"mr-taraz\",\n      \"enable\": true,\n      \"expiryTime\": 1708979254000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"395c1316-0198-40aa-bb9c-0d6fd508a514\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"gm8341uwu7s8cr9e\",\n      \"tgId\": \"\",\n      \"totalGB\": 23622320128\n    },\n    {\n      \"email\": \"ms-taraz\",\n      \"enable\": true,\n      \"expiryTime\": 1708971174000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"de3dc2ed-83e7-45ad-b936-3e922b2733f3\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"83a3he7w1nsp3x4y\",\n      \"tgId\": \"\",\n      \"totalGB\": 19327352832\n    },\n    {\n      \"email\": \"seyedi\",\n      \"enable\": true,\n      \"expiryTime\": 1710519174000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"a1ff5e5d-da53-479e-9b34-113c7c40d339\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"qhuelasiefq32et3\",\n      \"tgId\": \"\",\n      \"totalGB\": 32212254720\n    },\n    {\n      \"email\": \"sarafrazi\",\n      \"enable\": true,\n      \"expiryTime\": 1710759964000,\n      \"flow\": \"xtls-rprx-vision\",\n      \"id\": \"91c956bc-ccc9-441f-8614-4f8c5213c5eb\",\n      \"limitIp\": 0,\n      \"reset\": 0,\n      \"subId\": \"vfixyggrerpnfi9w\",\n      \"tgId\": \"\",\n      \"totalGB\": 32212254720\n    }\n  ],\n  \"decryption\": \"none\",\n  \"fallbacks\": []\n}",
+            "streamSettings": "{\n  \"network\": \"tcp\",\n  \"security\": \"tls\",\n  \"externalProxy\": [],\n  \"tlsSettings\": {\n    \"serverName\": \"m1.kahroba.top\",\n    \"minVersion\": \"1.2\",\n    \"maxVersion\": \"1.3\",\n    \"cipherSuites\": \"\",\n    \"rejectUnknownSni\": false,\n    \"certificates\": [\n      {\n        \"certificateFile\": \"/root/cert.crt\",\n        \"keyFile\": \"/root/private.key\",\n        \"ocspStapling\": 3600\n      }\n    ],\n    \"alpn\": [\n      \"h2\",\n      \"http/1.1\"\n    ],\n    \"settings\": {\n      \"allowInsecure\": false,\n      \"fingerprint\": \"\"\n    }\n  },\n  \"tcpSettings\": {\n    \"acceptProxyProtocol\": false,\n    \"header\": {\n      \"type\": \"none\"\n    }\n  }\n}",
+            "tag": "inbound-0.0.0.0:45753",
+            "sniffing": "{\n  \"enabled\": true,\n  \"destOverride\": [\n    \"http\",\n    \"tls\",\n    \"quic\",\n    \"fakedns\"\n  ]\n}"
         }
-      }
-    },
-    {
-      "domainStrategy": "",
-      "protocol": "freedom",
-      "tag": "direct"
-    },
-    {
-      "domainStrategy": "",
-      "protocol": "freedom",
-      "tag": "bypass"
-    },
-    {
-      "protocol": "blackhole",
-      "tag": "block"
-    },
-    {
-      "protocol": "dns",
-      "proxySettings": {
-        "tag": "proxy",
-        "transportLayer": true
-      },
-      "settings": {
-        "address": "8.8.8.8",
-        "network": "tcp",
-        "port": 53,
-        "userLevel": 1
-      },
-      "tag": "dns-out"
-    }
-  ],
-  "policy": {
-    "levels": {
-      "1": {
-        "connIdle": 30
-      }
-    },
-    "system": {
-      "statsOutboundDownlink": true,
-      "statsOutboundUplink": true
-    }
-  },
-  "routing": {
-    "domainStrategy": "AsIs",
-    "rules": [
-      {
-        "inboundTag": [
-          "socks-in",
-          "http-in"
-        ],
-        "outboundTag": "dns-out",
-        "port": "53",
-        "type": "field"
-      },
-      {
-        "outboundTag": "proxy",
-        "port": "0-65535",
-        "type": "field"
-      }
     ]
-  },
-  "stats": {}
 }
