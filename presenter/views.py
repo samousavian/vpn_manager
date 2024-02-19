@@ -6,7 +6,6 @@ from .models import Server, Seller
 import pandas as pd
 import json, requests, uuid, random
 from django.shortcuts import get_object_or_404
-from django.contrib.admin.views.decorators import user_passes_test
 from django.contrib.auth import authenticate, login, logout
 
 
@@ -151,11 +150,10 @@ def get_clients(servers):
                     'expiry_time': client['expiryTime'],
                     'total': client['total'],
                     'reset': client['reset'],
-                    'server': server_name
+                    'server': server_name,
         })
     df = pd.DataFrame(client_data)
 
-    # df_modified['is_over_traffic'] = df.apply(lambda row: row['total'] < (row['up'] + row['down']), axis=1)
     df['traffic'] = df.apply(lambda row: (row['up'] + row['down']) / 1073741824 , axis=1)
     df['total'] = df.apply(lambda row: row['total'] / 1073741824 , axis=1)
     df['up'] = df.apply(lambda row: row['up'] / 1073741824 , axis=1)
@@ -164,55 +162,11 @@ def get_clients(servers):
     df['is_expired'] = df.apply(lambda row: row['expiry_time'] < now, axis=1)
     df['time_remaining'] = (df['expiry_time'] - now).dt.days
     df['time_remaining'] = df['time_remaining'].apply(lambda x: max(x, 0))
+    df['progress_percentage'] = df.apply(lambda row: int(min(max(0, (float(row['traffic']) / float(row['total']) * 100) if float(row['total']) > 0 else 0), 100)), axis=1)
     return df
 
 
-def get_inbounds():
-    now = datetime.utcnow()
-    servers = Server.objects.all()
-    df_all_inbounds = pd.DataFrame()
-    for server in servers:
-        try:
-            s = requests.Session()
-            url = server.url + "login"
-            payload = f'username={server.user_name}&password={server.password}'
-            headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-            response = s.request("POST", url, headers=headers, data=payload)
-
-            # Handle non-200 responses or check response content as needed
-            if response.status_code != 200:  # or other success codes as appropriate
-                    error_message = f"Login failed for server: {server.name}. Status code: {response.status_code}"
-                    raise ServerLoginError(error_message)
-        except requests.exceptions.RequestException as e:
-            error_message = f"An error occurred with server: {server.name}. Error details: {e}"
-            raise ServerLoginError(error_message)
-        
-        # Make another request using the same session
-        url = server.url + "xui/inbound/list"
-        headers = {'Accept': 'application/json',}
-        response = s.request("POST", url, headers=headers)
-
-        json_content = json.loads(response.text)
-        obj_data = json_content['obj']
-        df = pd.DataFrame(obj_data)
-        df['server'] = server.name
-        df_all_inbounds = pd.concat([df_all_inbounds, df], ignore_index=True)
-    
-    df_all_inbounds['is_over_traffic'] = df_all_inbounds.apply(lambda row: row['total'] < (row['up'] + row['down']), axis=1)
-    df_all_inbounds['traffic'] = df_all_inbounds.apply(lambda row: (row['up'] + row['down']) / 1073741824 , axis=1)
-    df_all_inbounds['total'] = df_all_inbounds.apply(lambda row: row['total'] / 1073741824 , axis=1)
-    df_all_inbounds['up'] = df_all_inbounds.apply(lambda row: row['up'] / 1073741824 , axis=1)
-    df_all_inbounds['down'] = df_all_inbounds.apply(lambda row: row['down'] / 1073741824 , axis=1)
-    df_all_inbounds['expiry_time'] = df_all_inbounds.apply(lambda row: datetime.utcfromtimestamp(row['expiryTime'] / 1000) , axis=1)
-    df_all_inbounds['is_expired'] = df_all_inbounds.apply(lambda row: row['expiry_time'] < now, axis=1)
-
-    df_all_inbounds['time_remaining'] = (df_all_inbounds['expiry_time'] - now).dt.days
-    df_all_inbounds['time_remaining'] = df_all_inbounds['time_remaining'].apply(lambda x: max(x, 0))
-
-    return df_all_inbounds
-
-
-def all_inbounds(request):
+def all_clients(request):
     if not request.user.is_authenticated:
         return redirect('login')
     elif request.user.is_superuser:
@@ -246,13 +200,11 @@ def all_inbounds(request):
 
     df_disabled_clients =  sorted_df[df['enable'] == False]
     df_enabled_clients =  sorted_df[df['enable'] == True]
-    all_inbounds = sorted_df.to_dict(orient='records')
     disabled_clients = df_disabled_clients.to_dict(orient='records')
     enabled_clients = df_enabled_clients.to_dict(orient='records')
 
-    # Pass the filtered objects to a template   
-    context = {'disabled_clients': disabled_clients, 'enabled_clients': enabled_clients, 'all_inbounds': all_inbounds, 'now':now}
-    return render(request, 'presenter/all_inbounds.html', context)
+    context = {'disabled_clients': disabled_clients, 'enabled_clients': enabled_clients, 'now':now}
+    return render(request, 'presenter/all_clients.html', context)
 
 
 def logout_view(request):
@@ -262,14 +214,14 @@ def logout_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('all_inbounds')
+        return redirect('all_clients')
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('all_inbounds')
+            return redirect('all_clients')
         else:
             error_message = "کاربری با این مشخصات یافت نشد"
             return render(request, 'login.html', {'error_message': error_message})

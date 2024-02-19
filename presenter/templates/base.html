@@ -13,13 +13,16 @@
         body {
             font-family: 'Vazirmatn', sans-serif;
         }
+        .wide-column {
+            width: 30%; /* Adjust as needed */
+        }
     </style>
     
     {% block head_extra %}{% endblock %}
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Server</a>
+        <a class="navbar-brand" href="{% url 'all_clients' %}">مشتریان</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>

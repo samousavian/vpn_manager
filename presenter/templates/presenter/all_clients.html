@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    {% if request.user.is_staff %}
+        <a href="{% url 'add_inbound' %}" class="btn btn-primary mt-2">اکانت جدید</a>
+    {% endif %}
+    <div class="row justify-content-center">
+        <div class="col text-center">
+            <h1 class="mt-4">اکانت‌های غیر فعال</h1>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <div class="table-responsive">
+                <table class="table table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th class="text-right">نام</th>
+                            <th class="text-right">روند مصرف (GB)</th>
+                            <th class="text-right">خرید (GB)</th>
+                            <th class="text-right">دانلود (GB)</th>
+                            <th class="text-right">آپلود (GB)</th>
+                            <th class="text-right">انقضا (روز)</th>
+                            <th class="text-right">دسته</th>
+                            <th class="text-right">تمدید</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in disabled_clients %}
+                            <tr>
+                                <td class="text-right"><a href="{% url 'profile' client.server client.email %}">{{ client.email }}</a></td>
+                                <td class="text-right">
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" style="width: {{ client.progress_percentage }}%;" aria-valuenow="{{ client.progress_percentage }}" aria-valuemin="0" aria-valuemax="100">{{ client.traffic|floatformat:1 }} گیگ</div>
+                                    </div>
+                                </td>
+                                <td class="text-right">{{ client.total|floatformat:2 }}</td>
+                                <td class="text-right">{{ client.down|floatformat:2 }}</td>
+                                <td class="text-right">{{ client.up|floatformat:2 }}</td>
+                                <td class="{{ client.is_expired|yesno:'text-danger,text-dark' }}">{{ client.time_remaining }}</td>
+                                <td class="text-right">{{ client.remark }}</td>
+                                <td>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col text-center">
+            <h1 class="mt-4">اکانت‌های فعال</h1>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <div class="table-responsive">
+                <table class="table table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th class="text-right">نام</th>
+                            <th class="text-center">روند مصرف (GB)</th>
+                            <th class="text-center">دانلود/آپلود (GB)</th>
+                            <th class="text-center">انقضا (روز)</th>
+                            <th class="text-center">دسته</th>
+                            <th class="text-center">تمدید</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in enabled_clients %}
+                            <tr>
+                                <td class="text-right"><a href="{% url 'profile' client.server client.email %}">{{ client.email }}</a></td>
+                                <td class="text-right wide-column">
+                                    <div class="d-flex align-items-center">
+                                        <span>{{ client.traffic|floatformat:1 }}</span>
+                                        <div class="progress flex-grow-1 mx-2">
+                                            <div class="progress-bar" role="progressbar" style="width: {{ client.progress_percentage }}%;" aria-valuenow="{{ client.progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span>{{ client.total|floatformat:1 }}</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">{{ client.up|floatformat:1 }}/{{ client.down|floatformat:1 }}</td>
+                                <td class="text-center">{{ client.time_remaining }}</td>
+                                <td class="text-center">{{ client.remark }}</td>
+                                <td>
+                                    {% comment %} <a href="{% url 'update_client' client.account_id client.remark client.server client.int_total client.formatted_expiry_time client.int_traffic %}" target="_blank">تمدید</a> {% endcomment %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
