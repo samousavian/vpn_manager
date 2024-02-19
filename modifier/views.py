@@ -3,31 +3,46 @@ from urllib.parse import urlencode, quote_plus, urlparse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from .forms import *
+from .models import Updated_Inbound
 from presenter.models import *
-# from django.views.decorators.csrf import csrf_exempt
+from presenter.views import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from presenter.models import Purchased
-from .models import Updated_Inbound
+from django.shortcuts import get_object_or_404
 
 
-# @csrf_exempt
 @login_required(login_url="login_view")
-def update_inbound(request, user_id, remark, server_name, pre_traffic, expiry_time, total_used):
+def update_client(request, user_id, remark, server_name, pre_traffic, expiry_time, total_used):
     if not request.user.is_staff:
-        return redirect("login")
+        return HttpResponse("You have no power here!!")
 
-    server = Server.objects.get(name=server_name)
+    server = get_object_or_404(Server, name=server_name)
     uuid = user_id
     remark = remark
     pre_traffic = pre_traffic
 
+    s = login_to_server(server)
+    url = server.url + "panel/api/inbounds/2/resetClientTraffic/samir"
+    payload = {}
+    headers = {
+        "Accept": "application/json",
+    }
+    response = s.request("POST", url, headers=headers, data=payload)
+
+    url = (
+        server.url
+        + "panel/api/inbounds/updateClient/8dd0bde3-8643-4691-bd7e-b670f36791f0"
+    )
+    payload = {
+        "id": 2,
+        "settings": '{"clients":[{\n      "email": "samir",\n      "enable": true,\n      "expiryTime": 1708773833000,\n      "flow": "xtls-rprx-vision",\n      "id": "8dd0bde3-8643-4691-bd7e-b670f36791f0",\n      "limitIp": 0,\n      "reset": 0,\n      "subId": "zaud6e8xu8mravp0",\n      "tgId": "",\n      "totalGB": 43687091200\n    }]}',
+    }
+    response = s.request("POST", url, headers=headers, data=payload)
     if request.method == "GET":
         form = UpdateInboundFrom()
-
         return render(
             request,
-            "modifier/update_inbound.html",
+            "modifier/update_client.html",
             {"pre_traffic": pre_traffic, "remark": remark, "form": form},
         )
 
@@ -42,13 +57,17 @@ def update_inbound(request, user_id, remark, server_name, pre_traffic, expiry_ti
         if int(traffic) == 0:
             return HttpResponse("Form is not valid!!")
 
+        clients = None
+
         inbounds = get_inbounds_list(server)
+
         def find_inbound_with_uuid(inbounds, uuid):
             for inbound in inbounds:
-                settings = json.loads(inbound['settings'])
-                for client in settings['clients']:
-                    if client['id'] == uuid:
+                settings = json.loads(inbound["settings"])
+                for client in settings["clients"]:
+                    if client["id"] == uuid:
                         return inbound
+
         inbound = find_inbound_with_uuid(inbounds, uuid)
         inbound_id = inbound["id"]
         domain = urlparse(server.url).hostname
@@ -63,7 +82,7 @@ def update_inbound(request, user_id, remark, server_name, pre_traffic, expiry_ti
 
         if not response.ok:
             return HttpResponse(f"login failed{server.name}")
-        
+
         payload, _, _ = generate_payload(
             False,
             inbound["remark"],
@@ -84,22 +103,20 @@ def update_inbound(request, user_id, remark, server_name, pre_traffic, expiry_ti
             return HttpResponse("Code D")
 
         try:
-            response = s.request(
-                "POST", url, headers=headers, data=payload
-            )
+            response = s.request("POST", url, headers=headers, data=payload)
             if response.status_code == 200:
                 success = True
                 message = f"{remark} updated Successfully"
-                request.session['success'] = success
-                request.session['message'] = message
+                request.session["success"] = success
+                request.session["message"] = message
 
                 # Create and save a new Updated_Inbound instance
                 new_record = Updated_Inbound(
                     remark=remark,
                     uuid=uuid,
                     total_used=total_used,
-                    expiry_time=datetime.strptime(expiry_time, '%Y%m%d%H%M'),
-                    seller=request.user
+                    expiry_time=datetime.strptime(expiry_time, "%Y%m%d%H%M"),
+                    seller=request.user,
                 )
                 new_record.save()
 
@@ -109,22 +126,22 @@ def update_inbound(request, user_id, remark, server_name, pre_traffic, expiry_ti
         except ConnectionError:
             success = False
             message = f"{remark} update Failed"
-            request.session['success'] = success
-            request.session['message'] = message
+            request.session["success"] = success
+            request.session["message"] = message
             return redirect("inbound_updated")
 
 
 def inbound_updated(request):
     # Fetch data from the session
-    message = request.session.get('message', '')
-    success = request.session.get('success', '')
+    message = request.session.get("message", "")
+    success = request.session.get("success", "")
 
     # Remove the data from the session after fetching
-    if 'message' in request.session:
-        del request.session['message']
-    if 'success' in request.session:
-        del request.session['success']
-    
+    if "message" in request.session:
+        del request.session["message"]
+    if "success" in request.session:
+        del request.session["success"]
+
     context = {"success": success, "message": message}
     return render(request, "modifier/inbound_updated.html", context)
 
@@ -267,9 +284,7 @@ def add_to_purchased(user, remark, uuid):
     uuid = uuid
     purchased = Purchased(user_id=uuid, remark=remark, seller=seller)
     purchased.save()
-
     return
-
 
 
 def add_inbound(request):
@@ -278,7 +293,7 @@ def add_inbound(request):
 
     if request.user.is_staff:
         servers = Server.objects.all()
-        server_names = [(name, name) for name in servers.values_list('name', flat=True)]
+        server_names = [(name, name) for name in servers.values_list("name", flat=True)]
 
         server_name_data = []
 
@@ -289,7 +304,9 @@ def add_inbound(request):
                 server_name_data.append((server.name, label, inbounds_count))
             except ConnectionError:
                 label = f"{server.name} (? inbounds)"
-                server_name_data.append((server.name, label, float('inf')))  # Use a high value for sort
+                server_name_data.append(
+                    (server.name, label, float("inf"))
+                )  # Use a high value for sort
                 continue
 
         # Sort by inbounds_count
@@ -301,7 +318,9 @@ def add_inbound(request):
         form = AddInboundForm(server_name_choices=server_name_choices)
 
         # If you want the one with the least inbounds_count to be the default
-        form.fields['server_name'].initial = server_name_data[0][0] if server_name_data else None
+        form.fields["server_name"].initial = (
+            server_name_data[0][0] if server_name_data else None
+        )
 
         if request.method == "POST":
             form = AddInboundForm(request.POST, server_name_choices=server_names)
@@ -327,24 +346,24 @@ def add_inbound(request):
 
                 url = f"{server.url}xui/inbound/add"
                 domain = urlparse(server.url).hostname
-                payload, link, uuid = generate_payload(True, remark, total, expiry_time, domain, protocol)
+                payload, link, uuid = generate_payload(
+                    True, remark, total, expiry_time, domain, protocol
+                )
                 try:
                     message = f"{request.user} wants to add {remark} with {total}GB in {expiry_time}!"
                     send_to_discord(message)
                 except:
                     return HttpResponse("Code D")
                 try:
-                    response = s.request(
-                        "POST", url, headers=headers, data=payload
-                    )
+                    response = s.request("POST", url, headers=headers, data=payload)
                     if response.status_code == 200:
-                        add_to_purchased(request.user, remark,  uuid)
+                        add_to_purchased(request.user, remark, uuid)
                         success = True
                         message = f"{remark} Added Successfully"
-                        request.session['success'] = success
-                        request.session['message'] = message
-                        request.session['link'] = link
-                        request.session['remark'] = remark
+                        request.session["success"] = success
+                        request.session["message"] = message
+                        request.session["link"] = link
+                        request.session["remark"] = remark
                         return redirect("inbound_added")
                     else:
                         raise ConnectionError
@@ -379,21 +398,21 @@ def add_inbound(request):
 
 def inbound_added(request):
     # Fetch data from the session
-    message = request.session.get('message', '')
-    link = request.session.get('link', '')
-    success = request.session.get('success', '')
-    remark = request.session.get('remark', '')
+    message = request.session.get("message", "")
+    link = request.session.get("link", "")
+    success = request.session.get("success", "")
+    remark = request.session.get("remark", "")
 
     # Remove the data from the session after fetching
-    if 'message' in request.session:
-        del request.session['message']
-    if 'link' in request.session:
-        del request.session['link']
-    if 'success' in request.session:
-        del request.session['success']
-    if 'remark' in request.session:
-        del request.session['remark']
-    
+    if "message" in request.session:
+        del request.session["message"]
+    if "link" in request.session:
+        del request.session["link"]
+    if "success" in request.session:
+        del request.session["success"]
+    if "remark" in request.session:
+        del request.session["remark"]
+
     context = {"success": success, "message": message, "link": link, "remark": remark}
     return render(request, "modifier/inbound_added.html", context)
 
@@ -401,15 +420,19 @@ def inbound_added(request):
 def get_inbounds_list(server):
     s = requests.Session()
     url = server.url + "login"
-    payload = f'username={server.user_name}&password={server.password}'
-    headers = {'Content-Type': 'application/x-www-form-urlencoded',}
+    payload = f"username={server.user_name}&password={server.password}"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
     response = s.request("POST", url, headers=headers, data=payload)
 
     if not response.ok:
-        return HttpResponse(f'login failed{server.name}')
+        return HttpResponse(f"login failed{server.name}")
 
     url = server.url + "xui/inbound/list"
-    headers = {'Accept': 'application/json',}
+    headers = {
+        "Accept": "application/json",
+    }
     try:
         response = s.request("POST", url, headers=headers)
     except Exception:
@@ -422,9 +445,6 @@ def get_inbounds_list(server):
 
 def send_to_discord(message):
     webhook_url = "https://discord.com/api/webhooks/1187483519438565426/KcUXef_ziRl-VMnHNdHMT2qhHsJ4uuUHvIswigzfm3AVJkAbBrEb6p40IRFTz8IJ52oe"
-    data = {
-        "content": message,
-        "username": "Django App"
-    }
+    data = {"content": message, "username": "Django App"}
     response = requests.post(webhook_url, json=data)
     return response.status_code
